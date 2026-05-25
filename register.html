@@ -198,8 +198,8 @@
             const btn = document.getElementById('send-otp-btn');
             btn.innerHTML = 'Sending Code... ✦';
 
-            // Store all their inputs in memory for later
-            userData.email = document.getElementById('email-input').value;
+            // THE EMAIL FIX: Lowercase it and trim spaces immediately!
+            userData.email = document.getElementById('email-input').value.toLowerCase().trim();
             userData.password = document.getElementById('pass-input').value;
             userData.firstName = document.getElementById('fname-input').value;
             userData.lastName = document.getElementById('lname-input').value;
@@ -230,13 +230,18 @@
         window.verifyAndCreateProfile = async () => {
             const btn = document.getElementById('verify-btn');
             
-            // 1. Grab the code and ruthlessly destroy any spaces or hidden characters
+            // 🛑 THE RACE CONDITION FIX: Instantly lock the button so it CANNOT fire twice!
+            if (btn.disabled) return; 
+            btn.disabled = true;
+            btn.style.pointerEvents = 'none';
+            
+            // Grab the code and ruthlessly destroy any spaces
             let rawToken = document.getElementById('otp-input').value;
             const cleanToken = rawToken.replace(/\s/g, '').trim(); 
             
             btn.innerHTML = 'Verifying... ✦';
 
-            // 2. Check the 6-digit code with Supabase
+            // Check the 6-digit code with Supabase
             const { data, error } = await supabase.auth.verifyOtp({
                 email: userData.email,
                 token: cleanToken,
@@ -244,13 +249,17 @@
             });
 
             if (error) {
-                console.error("SUPABASE OTP ERROR DETECTED:", error.message); // This will tell us the exact issue!
+                console.error("SUPABASE OTP ERROR DETECTED:", error.message);
                 alert("Invalid Code! The stars do not align.\nReason: " + error.message);
+                
+                // Unlock the button so they can try again if they typed it wrong
                 btn.innerHTML = 'Verify & Enter <span class="transition-transform duration-300 group-hover:rotate-180">✦</span>';
+                btn.disabled = false;
+                btn.style.pointerEvents = 'auto';
                 return;
             }
 
-            // 3. Code was correct! They are officially logged in. Now save their shipping data.
+            // Code was correct! They are officially logged in. Now save their shipping data.
             const uid = data.session.user.id;
 
             const { error: profileError } = await supabase
