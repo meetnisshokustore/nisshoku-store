@@ -66,6 +66,7 @@
                 <div class="dot" id="dot-3"></div>
             </div>
 
+            <!-- ================= STEP 1: ACCOUNT BASICS ================= -->
             <div id="step-1" class="step-content opacity-0 animate-fade-in-up">
                 <h2 class="font-serif text-2xl text-brand-gold tracking-widest text-center mb-2">JOIN THE ECLIPSE</h2>
                 <p class="text-center text-xs tracking-widest text-gray-400 mb-8 lowercase">let's secure your account</p>
@@ -80,6 +81,7 @@
                 <p class="text-center text-[10px] tracking-widest text-gray-500 mt-6 uppercase">Already have an account? <a href="login.html" class="text-brand-gold hover:text-brand-lightGold">Sign In</a></p>
             </div>
 
+            <!-- ================= STEP 2: PERSONAL DETAILS ================= -->
             <div id="step-2" class="step-content hidden">
                 <h2 class="font-serif text-2xl text-brand-gold tracking-widest text-center mb-2">WHO ARE YOU?</h2>
                 <p class="text-center text-xs tracking-widest text-gray-400 mb-8 lowercase">nice to meet you</p>
@@ -101,6 +103,7 @@
                 </div>
             </div>
 
+            <!-- ================= STEP 3: ADDRESS & FORGE ACCOUNT ================= -->
             <div id="step-3" class="step-content hidden">
                 <h2 class="font-serif text-2xl text-brand-gold tracking-widest text-center mb-2">YOUR SANCTUARY</h2>
                 <p class="text-center text-xs tracking-widest text-gray-400 mb-8 lowercase">where should we send your jewelry?</p>
@@ -115,24 +118,12 @@
                 <div class="flex gap-4 mt-10">
                     <button onclick="prevStep(2)" class="w-1/3 border border-brand-purple text-brand-lightPurple py-4 text-xs tracking-[0.2em] uppercase hover:bg-brand-purple/20 transition">Back</button>
                     <button id="send-otp-btn" onclick="sendVerification()" class="premium-btn w-2/3 border border-brand-gold text-brand-gold bg-brand-purple/20 py-4 text-xs tracking-[0.2em] uppercase flex justify-center items-center gap-2 group hover:bg-brand-purple">
-                        Send Code <span class="transition-transform duration-300 group-hover:translate-x-2">✦</span>
+                        Forge Account <span class="transition-transform duration-300 group-hover:translate-x-2">✦</span>
                     </button>
                 </div>
             </div>
 
-            <div id="step-otp" class="step-content hidden">
-                <h2 class="font-serif text-2xl text-brand-gold tracking-widest text-center mb-2">VERIFY</h2>
-                <p class="text-center text-xs tracking-widest text-gray-400 mb-8 lowercase">the stars sent a code to your email.</p>
-                <div class="space-y-6">
-                    <div>
-                        <input type="text" id="otp-input" maxlength="6" placeholder="000000" class="premium-input">
-                    </div>
-                </div>
-                <button id="verify-btn" onclick="verifyAndCreateProfile()" class="premium-btn w-full mt-10 border border-brand-gold text-brand-darkest bg-brand-gold py-4 text-xs tracking-[0.2em] uppercase flex justify-center items-center gap-2 group hover:bg-brand-lightGold transition duration-300">
-                    Verify & Enter <span class="transition-transform duration-300 group-hover:rotate-180">✦</span>
-                </button>
-            </div>
-
+            <!-- ================= STEP 4: SUCCESS! (Skipped OTP screen) ================= -->
             <div id="step-success" class="step-content hidden text-center py-10">
                 <div class="text-brand-gold text-4xl mb-6 animate-pulse">✦</div>
                 <h2 class="font-serif text-3xl text-brand-gold tracking-widest mb-4">WELCOME</h2>
@@ -145,6 +136,7 @@
         </main>
     </div>
 
+    <!-- 100% SUPABASE SCRIPTS -->
     <script type="module">
         import { createClient } from "https://cdn.jsdelivr.net/npm/@supabase/supabase-js/+esm";
 
@@ -181,7 +173,7 @@
                 void nextEl.offsetWidth;
                 nextEl.classList.add('animate-fade-in-up');
                 
-                if (to === 'otp' || to === 'success') {
+                if (to === 'success') {
                     document.getElementById('progress-dots').classList.add('hidden');
                 } else {
                     for(let i=1; i<=3; i++) {
@@ -193,12 +185,12 @@
             }, 400);
         }
 
-        // PHASE 1: Create Account & Send OTP
+        // PHASE 1 & 2 COMBINED: Create Account & Instantly Enter!
         window.sendVerification = async () => {
             const btn = document.getElementById('send-otp-btn');
-            btn.innerHTML = 'Sending Code... ✦';
+            btn.innerHTML = 'Forging Account... ✦';
 
-            // THE EMAIL FIX: Lowercase it and trim spaces immediately!
+            // 1. Grab all the data
             userData.email = document.getElementById('email-input').value.toLowerCase().trim();
             userData.password = document.getElementById('pass-input').value;
             userData.firstName = document.getElementById('fname-input').value;
@@ -209,7 +201,7 @@
             userData.state = document.getElementById('state-input').value;
             userData.zip = document.getElementById('zip-input').value;
 
-            // Ask Supabase to create the user and send the email
+            // 2. Ask Supabase to create the user (With 'Confirm Email' OFF, this logs them in instantly!)
             const { data, error } = await supabase.auth.signUp({
                 email: userData.email,
                 password: userData.password,
@@ -218,49 +210,12 @@
             if (error) {
                 console.error("Auth Error:", error);
                 alert("Error: " + error.message);
-                btn.innerHTML = 'Send Code <span class="transition-transform duration-300 group-hover:translate-x-2">✦</span>';
+                btn.innerHTML = 'Forge Account <span class="transition-transform duration-300 group-hover:translate-x-2">✦</span>';
                 return;
             }
 
-            // It worked! Move to the OTP screen.
-            switchStep(3, 'otp');
-        };
-
-        // PHASE 2: Verify the Code & Save their Profile
-        window.verifyAndCreateProfile = async () => {
-            const btn = document.getElementById('verify-btn');
-            
-            // 🛑 THE RACE CONDITION FIX: Instantly lock the button so it CANNOT fire twice!
-            if (btn.disabled) return; 
-            btn.disabled = true;
-            btn.style.pointerEvents = 'none';
-            
-            // Grab the code and ruthlessly destroy any spaces
-            let rawToken = document.getElementById('otp-input').value;
-            const cleanToken = rawToken.replace(/\s/g, '').trim(); 
-            
-            btn.innerHTML = 'Verifying... ✦';
-
-            // Check the 6-digit code with Supabase
-            const { data, error } = await supabase.auth.verifyOtp({
-                email: userData.email,
-                token: cleanToken,
-                type: 'signup'
-            });
-
-            if (error) {
-                console.error("SUPABASE OTP ERROR DETECTED:", error.message);
-                alert("Invalid Code! The stars do not align.\nReason: " + error.message);
-                
-                // Unlock the button so they can try again if they typed it wrong
-                btn.innerHTML = 'Verify & Enter <span class="transition-transform duration-300 group-hover:rotate-180">✦</span>';
-                btn.disabled = false;
-                btn.style.pointerEvents = 'auto';
-                return;
-            }
-
-            // Code was correct! They are officially logged in. Now save their shipping data.
-            const uid = data.session.user.id;
+            // 3. They are in! Grab their ID and save their shipping profile
+            const uid = data.user.id; 
 
             const { error: profileError } = await supabase
                 .from('profiles')
@@ -280,11 +235,11 @@
 
             if (profileError) {
                 console.error("Profile Saving Error:", profileError);
-                alert("Account verified, but address failed to save. You can update it in your profile later!");
+                alert("Account created, but address failed to save. You can update it later!");
             }
 
-            // Bring up the beautiful welcome screen
-            switchStep('otp', 'success');
+            // 4. SKIP THE OTP SCREEN! Go straight from Step 3 to Success!
+            switchStep(3, 'success');
         };
 
         // Aesthetic Effects
