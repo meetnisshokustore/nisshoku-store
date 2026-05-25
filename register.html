@@ -66,7 +66,6 @@
                 <div class="dot" id="dot-3"></div>
             </div>
 
-            <!-- ================= STEP 1: ACCOUNT BASICS ================= -->
             <div id="step-1" class="step-content opacity-0 animate-fade-in-up">
                 <h2 class="font-serif text-2xl text-brand-gold tracking-widest text-center mb-2">JOIN THE ECLIPSE</h2>
                 <p class="text-center text-xs tracking-widest text-gray-400 mb-8 lowercase">let's secure your account</p>
@@ -81,7 +80,6 @@
                 <p class="text-center text-[10px] tracking-widest text-gray-500 mt-6 uppercase">Already have an account? <a href="login.html" class="text-brand-gold hover:text-brand-lightGold">Sign In</a></p>
             </div>
 
-            <!-- ================= STEP 2: PERSONAL DETAILS ================= -->
             <div id="step-2" class="step-content hidden">
                 <h2 class="font-serif text-2xl text-brand-gold tracking-widest text-center mb-2">WHO ARE YOU?</h2>
                 <p class="text-center text-xs tracking-widest text-gray-400 mb-8 lowercase">nice to meet you</p>
@@ -103,7 +101,6 @@
                 </div>
             </div>
 
-            <!-- ================= STEP 3: ADDRESS & TRIGGER OTP ================= -->
             <div id="step-3" class="step-content hidden">
                 <h2 class="font-serif text-2xl text-brand-gold tracking-widest text-center mb-2">YOUR SANCTUARY</h2>
                 <p class="text-center text-xs tracking-widest text-gray-400 mb-8 lowercase">where should we send your jewelry?</p>
@@ -123,7 +120,6 @@
                 </div>
             </div>
 
-            <!-- ================= STEP 4: ENTER OTP ================= -->
             <div id="step-otp" class="step-content hidden">
                 <h2 class="font-serif text-2xl text-brand-gold tracking-widest text-center mb-2">VERIFY</h2>
                 <p class="text-center text-xs tracking-widest text-gray-400 mb-8 lowercase">the stars sent a code to your email.</p>
@@ -137,7 +133,6 @@
                 </button>
             </div>
 
-            <!-- ================= STEP 5: SUCCESS! ================= -->
             <div id="step-success" class="step-content hidden text-center py-10">
                 <div class="text-brand-gold text-4xl mb-6 animate-pulse">✦</div>
                 <h2 class="font-serif text-3xl text-brand-gold tracking-widest mb-4">WELCOME</h2>
@@ -150,7 +145,6 @@
         </main>
     </div>
 
-    <!-- 100% SUPABASE SCRIPTS -->
     <script type="module">
         import { createClient } from "https://cdn.jsdelivr.net/npm/@supabase/supabase-js/+esm";
 
@@ -235,24 +229,28 @@
         // PHASE 2: Verify the Code & Save their Profile
         window.verifyAndCreateProfile = async () => {
             const btn = document.getElementById('verify-btn');
-            const token = document.getElementById('otp-input').value;
+            
+            // 1. Grab the code and ruthlessly destroy any spaces or hidden characters
+            let rawToken = document.getElementById('otp-input').value;
+            const cleanToken = rawToken.replace(/\s/g, '').trim(); 
+            
             btn.innerHTML = 'Verifying... ✦';
 
-            // Check the 6-digit code with Supabase
+            // 2. Check the 6-digit code with Supabase
             const { data, error } = await supabase.auth.verifyOtp({
                 email: userData.email,
-                token: token,
+                token: cleanToken,
                 type: 'signup'
             });
 
             if (error) {
-                console.error("OTP Error:", error);
-                alert("Invalid Code! The stars do not align.");
+                console.error("SUPABASE OTP ERROR DETECTED:", error.message); // This will tell us the exact issue!
+                alert("Invalid Code! The stars do not align.\nReason: " + error.message);
                 btn.innerHTML = 'Verify & Enter <span class="transition-transform duration-300 group-hover:rotate-180">✦</span>';
                 return;
             }
 
-            // Code was correct! They are officially logged in. Now save their shipping data.
+            // 3. Code was correct! They are officially logged in. Now save their shipping data.
             const uid = data.session.user.id;
 
             const { error: profileError } = await supabase
