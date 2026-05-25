@@ -41,9 +41,6 @@
         .premium-btn:hover { box-shadow: 0 0 25px rgba(220, 179, 123, 0.4); }
         .dot { width: 6px; height: 6px; border-radius: 50%; background-color: rgba(212, 184, 140, 0.3); transition: all 0.4s ease; }
         .dot.active { background-color: #D4B88C; transform: scale(1.5); box-shadow: 0 0 10px #D4B88C; }
-        
-        /* Specific styling for the OTP input to make it look cool */
-        #otp-input { letter-spacing: 0.5em; text-align: center; font-size: 24px; }
     </style>
 </head>
 <body class="text-white min-h-screen font-sans selection:bg-brand-purple selection:text-brand-lightGold relative flex items-center justify-center">
@@ -66,7 +63,6 @@
                 <div class="dot" id="dot-3"></div>
             </div>
 
-            <!-- ================= STEP 1: ACCOUNT BASICS ================= -->
             <div id="step-1" class="step-content opacity-0 animate-fade-in-up">
                 <h2 class="font-serif text-2xl text-brand-gold tracking-widest text-center mb-2">JOIN THE ECLIPSE</h2>
                 <p class="text-center text-xs tracking-widest text-gray-400 mb-8 lowercase">let's secure your account</p>
@@ -81,7 +77,6 @@
                 <p class="text-center text-[10px] tracking-widest text-gray-500 mt-6 uppercase">Already have an account? <a href="login.html" class="text-brand-gold hover:text-brand-lightGold">Sign In</a></p>
             </div>
 
-            <!-- ================= STEP 2: PERSONAL DETAILS ================= -->
             <div id="step-2" class="step-content hidden">
                 <h2 class="font-serif text-2xl text-brand-gold tracking-widest text-center mb-2">WHO ARE YOU?</h2>
                 <p class="text-center text-xs tracking-widest text-gray-400 mb-8 lowercase">nice to meet you</p>
@@ -103,7 +98,6 @@
                 </div>
             </div>
 
-            <!-- ================= STEP 3: ADDRESS & FORGE ACCOUNT ================= -->
             <div id="step-3" class="step-content hidden">
                 <h2 class="font-serif text-2xl text-brand-gold tracking-widest text-center mb-2">YOUR SANCTUARY</h2>
                 <p class="text-center text-xs tracking-widest text-gray-400 mb-8 lowercase">where should we send your jewelry?</p>
@@ -123,7 +117,6 @@
                 </div>
             </div>
 
-            <!-- ================= STEP 4: SUCCESS! (Skipped OTP screen) ================= -->
             <div id="step-success" class="step-content hidden text-center py-10">
                 <div class="text-brand-gold text-4xl mb-6 animate-pulse">✦</div>
                 <h2 class="font-serif text-3xl text-brand-gold tracking-widest mb-4">WELCOME</h2>
@@ -136,7 +129,6 @@
         </main>
     </div>
 
-    <!-- 100% SUPABASE SCRIPTS -->
     <script type="module">
         import { createClient } from "https://cdn.jsdelivr.net/npm/@supabase/supabase-js/+esm";
 
@@ -201,15 +193,23 @@
             userData.state = document.getElementById('state-input').value;
             userData.zip = document.getElementById('zip-input').value;
 
-            // 2. Ask Supabase to create the user (With 'Confirm Email' OFF, this logs them in instantly!)
+            // 2. Ask Supabase to create the user
             const { data, error } = await supabase.auth.signUp({
                 email: userData.email,
                 password: userData.password,
             });
 
+            // Handle normal errors (like bad passwords)
             if (error) {
                 console.error("Auth Error:", error);
                 alert("Error: " + error.message);
+                btn.innerHTML = 'Forge Account <span class="transition-transform duration-300 group-hover:translate-x-2">✦</span>';
+                return;
+            }
+
+            // 🚨 THE FIX: Catch the "Ghost User" if the email is already taken!
+            if (!data || !data.user) {
+                alert("This email is already in the vault! Please use a brand new email, or go to Sign In.");
                 btn.innerHTML = 'Forge Account <span class="transition-transform duration-300 group-hover:translate-x-2">✦</span>';
                 return;
             }
