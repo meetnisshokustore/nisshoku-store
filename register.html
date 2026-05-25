@@ -177,10 +177,15 @@
             }, 400);
         }
 
-        // PHASE 1 & 2 COMBINED: Create Account & Instantly Enter!
+      // PHASE 1 & 2 COMBINED: Create Account & Instantly Enter!
         window.sendVerification = async () => {
             const btn = document.getElementById('send-otp-btn');
             btn.innerHTML = 'Forging Account... ✦';
+
+            // 🧹 THE FIX: Forcibly clear any old sessions before signing up!
+            await supabase.auth.signOut(); 
+
+            
 
             // 1. Grab all the data
             userData.email = document.getElementById('email-input').value.toLowerCase().trim();
