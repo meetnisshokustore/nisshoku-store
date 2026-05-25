@@ -1,0 +1,264 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Sign In | Nisshoku</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <link href="https://fonts.googleapis.com/css2?family=Cinzel:wght@400;500;600&family=Montserrat:wght@300;400;500&display=swap" rel="stylesheet">
+    
+    <script>
+        tailwind.config = {
+            theme: {
+                extend: {
+                    fontFamily: {
+                        serif: ['Cinzel', 'serif'],
+                        sans: ['Montserrat', 'sans-serif'],
+                    },
+                    colors: {
+                        brand: {
+                            darkest: '#1A1022',
+                            dark: '#2B163D',
+                            purple: '#3E1F5C',
+                            lightPurple: '#6B4C9A',
+                            gold: '#D4B88C',
+                            lightGold: '#F2E7C6'
+                        }
+                    },
+                    keyframes: {
+                        fadeInUp: {
+                            '0%': { opacity: '0', transform: 'translateY(20px)' },
+                            '100%': { opacity: '1', transform: 'translateY(0)' },
+                        }
+                    },
+                    animation: {
+                        'fade-in-up': 'fadeInUp 0.6s cubic-bezier(0.16, 1, 0.3, 1) forwards',
+                    }
+                }
+            }
+        }
+    </script>
+
+    <style>
+        body, a, button { cursor: none; }
+        body { overflow-x: hidden; }
+
+        .sparkle-trail {
+            position: fixed;
+            pointer-events: none;
+            width: 6px;
+            height: 6px;
+            border-radius: 50%;
+            background-color: #D4B88C;
+            box-shadow: 0 0 10px #D4B88C, 0 0 20px #D4B88C;
+            z-index: 9998;
+            animation: fadeOut 0.6s ease-out forwards;
+        }
+
+        @keyframes fadeOut {
+            0% { opacity: 1; transform: scale(1) translateY(0); }
+            100% { opacity: 0; transform: scale(0.2) translateY(-20px); }
+        }
+
+        .glitter-particle {
+            position: fixed;
+            pointer-events: none;
+            width: 4px;
+            height: 4px;
+            background-color: #F2E7C6;
+            border-radius: 50%;
+            box-shadow: 0 0 8px #D4B88C, 0 0 12px #fff;
+            z-index: 9999;
+        }
+
+        /* Premium Input Styling */
+        .premium-input {
+            width: 100%;
+            background: transparent;
+            border: none;
+            border-bottom: 1px solid rgba(212, 184, 140, 0.3);
+            color: #F2E7C6;
+            padding: 12px 0;
+            font-family: 'Montserrat', sans-serif;
+            font-size: 14px;
+            letter-spacing: 0.1em;
+            transition: all 0.3s ease;
+        }
+
+        .premium-input:focus {
+            outline: none;
+            border-bottom: 1px solid #D4B88C;
+            box-shadow: 0 2px 10px -2px rgba(212, 184, 140, 0.2);
+        }
+
+        .premium-input::placeholder {
+            color: rgba(212, 184, 140, 0.4);
+            text-transform: lowercase;
+            letter-spacing: 0.15em;
+        }
+
+        /* Premium Button */
+        .premium-btn {
+            position: relative;
+            overflow: hidden;
+            box-shadow: 0 0 15px rgba(220, 179, 123, 0.1);
+        }
+
+        .premium-btn::before {
+            content: '';
+            position: absolute;
+            top: 0;
+            left: -100%;
+            width: 50%;
+            height: 100%;
+            background: linear-gradient(to right, rgba(255,255,255,0) 0%, rgba(220,179,123,0.3) 50%, rgba(255,255,255,0) 100%);
+            transform: skewX(-25deg);
+            transition: all 0.7s ease;
+        }
+
+        .premium-btn:hover::before { left: 150%; }
+        .premium-btn:hover { box-shadow: 0 0 25px rgba(220, 179, 123, 0.4); }
+    </style>
+</head>
+<body class="text-white min-h-screen font-sans selection:bg-brand-purple selection:text-brand-lightGold relative flex items-center justify-center">
+
+    <!-- Blurred Background -->
+    <div class="fixed top-0 left-0 w-full h-full -z-20 bg-cover bg-center bg-no-repeat blur-xl scale-110" style="background-image: url('bg-eclipse.png');"></div>
+    <div class="fixed top-0 left-0 w-full h-full -z-10 bg-brand-darkest/80"></div>
+
+    <!-- Small Navbar just for the Logo -->
+    <nav class="absolute top-0 left-0 w-full flex justify-center pt-10 z-50">
+        <a href="index.html" class="text-2xl tracking-[0.25em] font-serif text-brand-gold hover:text-white transition duration-300">
+            NISSHOKU
+        </a>
+    </nav>
+
+    <!-- The Login Container -->
+    <main class="w-full max-w-md px-8 py-12 bg-brand-darkest/40 backdrop-blur-md border border-brand-purple/30 shadow-2xl relative z-10 overflow-hidden opacity-0 animate-fade-in-up" style="animation-delay: 0.2s;">
+        
+        <div class="text-center mb-10">
+            <h2 class="font-serif text-2xl text-brand-gold tracking-widest mb-2">WELCOME BACK</h2>
+            <p class="text-xs tracking-widest text-gray-400 lowercase">enter the eclipse</p>
+        </div>
+
+        <form onsubmit="event.preventDefault();" class="space-y-8">
+            <div>
+                <input type="email" id="login-email" placeholder="email address" required class="premium-input">
+            </div>
+            
+            <div class="space-y-2">
+                <input type="password" id="login-password" placeholder="password" required class="premium-input">
+                <div class="flex justify-end">
+                    <a href="#" class="text-[9px] tracking-widest text-brand-lightPurple hover:text-brand-gold transition duration-300 uppercase">Forgot Password?</a>
+                </div>
+            </div>
+
+            <button type="button" id="login-btn" onclick="handleLogin()" class="premium-btn w-full mt-4 border border-brand-gold text-brand-gold py-4 text-xs tracking-[0.2em] uppercase flex justify-center items-center gap-2 group">
+                Sign In <span class="transition-transform duration-300 group-hover:translate-x-2">✦</span>
+            </button>
+        </form>
+
+        <div class="mt-8 pt-6 border-t border-brand-purple/30 text-center">
+            <p class="text-[10px] tracking-widest text-gray-500 uppercase">
+                New here? 
+                <a href="register.html" class="text-brand-gold hover:text-brand-lightGold ml-1 transition duration-300">Create Account</a>
+            </p>
+        </div>
+
+    </main>
+
+    <!-- SUPABASE INTEGRATION SCRIPT -->
+    <script type="module">
+        import { createClient } from "https://cdn.jsdelivr.net/npm/@supabase/supabase-js/+esm";
+
+        // Your Exact Supabase Config
+        const supabaseUrl = 'https://eqgpmrdzzxisoqmrjldd.supabase.co';
+        const supabaseKey = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6ImVxZ3BtcmR6enhpc29xbXJqbGRkIiwicm9sZSI6ImFub24iLCJpYXQiOjE3Nzk1MzMwMjcsImV4cCI6MjA5NTEwOTAyN30.MDA_HKm-1Xm0PP73agQtUJTx-SijYhynAdaWrKdcoZM';
+        const supabase = createClient(supabaseUrl, supabaseKey);
+
+        window.handleLogin = async () => {
+            const btn = document.getElementById('login-btn');
+            const email = document.getElementById('login-email').value;
+            const password = document.getElementById('login-password').value;
+
+            // Basic validation
+            if (!email || !password) {
+                alert("Please enter both email and password.");
+                return;
+            }
+
+            // Visual feedback
+            const originalBtnHTML = btn.innerHTML;
+            btn.innerHTML = 'Authenticating... <span class="animate-pulse">✦</span>';
+
+            // Ask Supabase to log them in
+            const { data, error } = await supabase.auth.signInWithPassword({
+                email: email,
+                password: password,
+            });
+
+            if (error) {
+                console.error("Login Error:", error);
+                alert("Access Denied. Check your email or password and try again.");
+                btn.innerHTML = originalBtnHTML; // Reset button
+            } else {
+                // Success! The stars have aligned. Send them to the shop.
+                btn.innerHTML = 'Welcome ✦';
+                setTimeout(() => {
+                    window.location.href = "shop.html";
+                }, 500);
+            }
+        };
+    </script>
+
+    <!-- Magic Cursor Scripts -->
+    <script>
+        // Magic Cursor Trail
+        document.addEventListener('mousemove', function(e) {
+            const sparkle = document.createElement('div');
+            sparkle.className = 'sparkle-trail';
+            sparkle.style.left = (e.clientX - 3) + 'px';
+            sparkle.style.top = (e.clientY - 3) + 'px';
+            document.body.appendChild(sparkle);
+            setTimeout(() => sparkle.remove(), 600);
+        });
+
+        // Glitter Explosion on Click
+        const allClickables = document.querySelectorAll('button, a');
+        
+        allClickables.forEach(el => {
+            el.addEventListener('click', function(e) {
+                if(e.clientX === 0 && e.clientY === 0) return; 
+                
+                for (let i = 0; i < 15; i++) {
+                    createGlitterExplosion(e.clientX, e.clientY);
+                }
+            });
+        });
+
+        function createGlitterExplosion(x, y) {
+            const glitter = document.createElement('div');
+            glitter.className = 'glitter-particle';
+            document.body.appendChild(glitter);
+            
+            glitter.style.left = x + 'px';
+            glitter.style.top = y + 'px';
+            
+            const angle = Math.random() * Math.PI * 2;
+            const velocity = 30 + Math.random() * 50; 
+            const tx = Math.cos(angle) * velocity;
+            const ty = Math.sin(angle) * velocity;
+            
+            const animation = glitter.animate([
+                { transform: 'translate(0, 0) scale(1)', opacity: 1 },
+                { transform: `translate(${tx}px, ${ty}px) scale(0)`, opacity: 0 }
+            ], {
+                duration: 400 + Math.random() * 400, 
+                easing: 'cubic-bezier(0, .9, .57, 1)' 
+            });
+            
+            animation.onfinish = () => glitter.remove();
+        }
+    </script>
+</body>
+</html>

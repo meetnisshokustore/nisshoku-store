@@ -1,0 +1,305 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Create Account | Nisshoku</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <link href="https://fonts.googleapis.com/css2?family=Cinzel:wght@400;500;600&family=Montserrat:wght@300;400;500&display=swap" rel="stylesheet">
+    
+    <script>
+        tailwind.config = {
+            theme: {
+                extend: {
+                    fontFamily: { serif: ['Cinzel', 'serif'], sans: ['Montserrat', 'sans-serif'], },
+                    colors: { brand: { darkest: '#1A1022', dark: '#2B163D', purple: '#3E1F5C', lightPurple: '#6B4C9A', gold: '#D4B88C', lightGold: '#F2E7C6' } },
+                    keyframes: {
+                        fadeInUp: { '0%': { opacity: '0', transform: 'translateY(20px)' }, '100%': { opacity: '1', transform: 'translateY(0)' }, },
+                        fadeOutDown: { '0%': { opacity: '1', transform: 'translateY(0)' }, '100%': { opacity: '0', transform: 'translateY(20px)' }, }
+                    },
+                    animation: {
+                        'fade-in-up': 'fadeInUp 0.6s cubic-bezier(0.16, 1, 0.3, 1) forwards',
+                        'fade-out-down': 'fadeOutDown 0.4s cubic-bezier(0.16, 1, 0.3, 1) forwards',
+                    }
+                }
+            }
+        }
+    </script>
+
+    <style>
+        body, a, button { cursor: none; }
+        body { overflow-x: hidden; }
+        .sparkle-trail { position: fixed; pointer-events: none; width: 6px; height: 6px; border-radius: 50%; background-color: #D4B88C; box-shadow: 0 0 10px #D4B88C, 0 0 20px #D4B88C; z-index: 9998; animation: fadeOut 0.6s ease-out forwards; }
+        @keyframes fadeOut { 0% { opacity: 1; transform: scale(1) translateY(0); } 100% { opacity: 0; transform: scale(0.2) translateY(-20px); } }
+        .glitter-particle { position: fixed; pointer-events: none; width: 4px; height: 4px; background-color: #F2E7C6; border-radius: 50%; box-shadow: 0 0 8px #D4B88C, 0 0 12px #fff; z-index: 9999; }
+        .premium-input { width: 100%; background: transparent; border: none; border-bottom: 1px solid rgba(212, 184, 140, 0.3); color: #F2E7C6; padding: 12px 0; font-family: 'Montserrat', sans-serif; font-size: 14px; letter-spacing: 0.1em; transition: all 0.3s ease; }
+        .premium-input:focus { outline: none; border-bottom: 1px solid #D4B88C; box-shadow: 0 2px 10px -2px rgba(212, 184, 140, 0.2); }
+        .premium-input::placeholder { color: rgba(212, 184, 140, 0.4); text-transform: lowercase; letter-spacing: 0.15em; }
+        .premium-btn { position: relative; overflow: hidden; box-shadow: 0 0 15px rgba(220, 179, 123, 0.1); }
+        .premium-btn::before { content: ''; position: absolute; top: 0; left: -100%; width: 50%; height: 100%; background: linear-gradient(to right, rgba(255,255,255,0) 0%, rgba(220,179,123,0.3) 50%, rgba(255,255,255,0) 100%); transform: skewX(-25deg); transition: all 0.7s ease; }
+        .premium-btn:hover::before { left: 150%; }
+        .premium-btn:hover { box-shadow: 0 0 25px rgba(220, 179, 123, 0.4); }
+        .dot { width: 6px; height: 6px; border-radius: 50%; background-color: rgba(212, 184, 140, 0.3); transition: all 0.4s ease; }
+        .dot.active { background-color: #D4B88C; transform: scale(1.5); box-shadow: 0 0 10px #D4B88C; }
+        
+        /* Specific styling for the OTP input to make it look cool */
+        #otp-input { letter-spacing: 0.5em; text-align: center; font-size: 24px; }
+    </style>
+</head>
+<body class="text-white min-h-screen font-sans selection:bg-brand-purple selection:text-brand-lightGold relative flex items-center justify-center">
+
+    <div class="fixed top-0 left-0 w-full h-full -z-20 bg-cover bg-center bg-no-repeat blur-xl scale-110" style="background-image: url('bg-eclipse.png');"></div>
+    <div class="fixed top-0 left-0 w-full h-full -z-10 bg-brand-darkest/80"></div>
+
+    <nav class="absolute top-0 left-0 w-full flex justify-center pt-10 z-50">
+        <a href="index.html" class="text-2xl tracking-[0.25em] font-serif text-brand-gold hover:text-white transition duration-300">
+            NISSHOKU
+        </a>
+    </nav>
+
+    <div class="relative w-full h-full flex items-center justify-center px-8 md:px-16 mt-16 md:mt-0">
+        <main class="w-full max-w-md px-8 py-10 bg-brand-darkest/40 backdrop-blur-md border border-brand-purple/30 shadow-2xl relative z-10 overflow-hidden">
+            
+            <div class="flex justify-center gap-3 mb-10" id="progress-dots">
+                <div class="dot active" id="dot-1"></div>
+                <div class="dot" id="dot-2"></div>
+                <div class="dot" id="dot-3"></div>
+            </div>
+
+            <!-- ================= STEP 1: ACCOUNT BASICS ================= -->
+            <div id="step-1" class="step-content opacity-0 animate-fade-in-up">
+                <h2 class="font-serif text-2xl text-brand-gold tracking-widest text-center mb-2">JOIN THE ECLIPSE</h2>
+                <p class="text-center text-xs tracking-widest text-gray-400 mb-8 lowercase">let's secure your account</p>
+                <div class="space-y-6">
+                    <div><input type="email" id="email-input" placeholder="email address" class="premium-input"></div>
+                    <div><input type="password" id="pass-input" placeholder="password (min 6 chars)" class="premium-input"></div>
+                    <div><input type="password" id="confirm-pass-input" placeholder="confirm password" class="premium-input"></div>
+                </div>
+                <button onclick="validateAndNext(2)" class="premium-btn w-full mt-10 border border-brand-gold text-brand-gold py-4 text-xs tracking-[0.2em] uppercase flex justify-center items-center gap-2 group">
+                    Continue <span class="transition-transform duration-300 group-hover:translate-x-2">✦</span>
+                </button>
+                <p class="text-center text-[10px] tracking-widest text-gray-500 mt-6 uppercase">Already have an account? <a href="login.html" class="text-brand-gold hover:text-brand-lightGold">Sign In</a></p>
+            </div>
+
+            <!-- ================= STEP 2: PERSONAL DETAILS ================= -->
+            <div id="step-2" class="step-content hidden">
+                <h2 class="font-serif text-2xl text-brand-gold tracking-widest text-center mb-2">WHO ARE YOU?</h2>
+                <p class="text-center text-xs tracking-widest text-gray-400 mb-8 lowercase">nice to meet you</p>
+                <div class="space-y-6">
+                    <div class="flex gap-4">
+                        <input type="text" id="fname-input" placeholder="first name" class="premium-input w-1/2">
+                        <input type="text" id="lname-input" placeholder="last name" class="premium-input w-1/2">
+                    </div>
+                    <div>
+                        <input type="tel" id="phone-input" placeholder="phone number (+91)" class="premium-input">
+                        <p class="text-center text-[10px] tracking-widest text-brand-lightPurple mt-3 lowercase leading-relaxed">
+                            psst... please enter correct phone number to avoid consequences such as not receiving parcel.<br>
+                        </p>
+                    </div>
+                </div>
+                <div class="flex gap-4 mt-10">
+                    <button onclick="prevStep(1)" class="w-1/3 border border-brand-purple text-brand-lightPurple py-4 text-xs tracking-[0.2em] uppercase hover:bg-brand-purple/20 transition">Back</button>
+                    <button onclick="nextStep(3)" class="premium-btn w-2/3 border border-brand-gold text-brand-gold py-4 text-xs tracking-[0.2em] uppercase flex justify-center items-center gap-2 group">Continue <span class="transition-transform duration-300 group-hover:translate-x-2">✦</span></button>
+                </div>
+            </div>
+
+            <!-- ================= STEP 3: ADDRESS & TRIGGER OTP ================= -->
+            <div id="step-3" class="step-content hidden">
+                <h2 class="font-serif text-2xl text-brand-gold tracking-widest text-center mb-2">YOUR SANCTUARY</h2>
+                <p class="text-center text-xs tracking-widest text-gray-400 mb-8 lowercase">where should we send your jewelry?</p>
+                <div class="space-y-6">
+                    <div><input type="text" id="street-input" placeholder="street address / apartment" class="premium-input"></div>
+                    <div class="flex gap-4">
+                        <input type="text" id="city-input" placeholder="city" class="premium-input w-1/2">
+                        <input type="text" id="state-input" placeholder="state" class="premium-input w-1/2">
+                    </div>
+                    <div><input type="text" id="zip-input" placeholder="zip code" class="premium-input w-1/2"></div>
+                </div>
+                <div class="flex gap-4 mt-10">
+                    <button onclick="prevStep(2)" class="w-1/3 border border-brand-purple text-brand-lightPurple py-4 text-xs tracking-[0.2em] uppercase hover:bg-brand-purple/20 transition">Back</button>
+                    <button id="send-otp-btn" onclick="sendVerification()" class="premium-btn w-2/3 border border-brand-gold text-brand-gold bg-brand-purple/20 py-4 text-xs tracking-[0.2em] uppercase flex justify-center items-center gap-2 group hover:bg-brand-purple">
+                        Send Code <span class="transition-transform duration-300 group-hover:translate-x-2">✦</span>
+                    </button>
+                </div>
+            </div>
+
+            <!-- ================= STEP 4: ENTER OTP ================= -->
+            <div id="step-otp" class="step-content hidden">
+                <h2 class="font-serif text-2xl text-brand-gold tracking-widest text-center mb-2">VERIFY</h2>
+                <p class="text-center text-xs tracking-widest text-gray-400 mb-8 lowercase">the stars sent a code to your email.</p>
+                <div class="space-y-6">
+                    <div>
+                        <input type="text" id="otp-input" maxlength="6" placeholder="000000" class="premium-input">
+                    </div>
+                </div>
+                <button id="verify-btn" onclick="verifyAndCreateProfile()" class="premium-btn w-full mt-10 border border-brand-gold text-brand-darkest bg-brand-gold py-4 text-xs tracking-[0.2em] uppercase flex justify-center items-center gap-2 group hover:bg-brand-lightGold transition duration-300">
+                    Verify & Enter <span class="transition-transform duration-300 group-hover:rotate-180">✦</span>
+                </button>
+            </div>
+
+            <!-- ================= STEP 5: SUCCESS! ================= -->
+            <div id="step-success" class="step-content hidden text-center py-10">
+                <div class="text-brand-gold text-4xl mb-6 animate-pulse">✦</div>
+                <h2 class="font-serif text-3xl text-brand-gold tracking-widest mb-4">WELCOME</h2>
+                <p class="text-sm tracking-widest text-gray-300 mb-10 leading-relaxed">Your profile is complete. <br>The stars are aligning for you.</p>
+                <a href="shop.html" class="inline-block premium-btn w-full border border-brand-gold text-brand-darkest bg-brand-gold py-4 text-xs tracking-[0.2em] uppercase hover:bg-brand-lightGold transition duration-300">
+                    Enter Shop
+                </a>
+            </div>
+
+        </main>
+    </div>
+
+    <!-- 100% SUPABASE SCRIPTS -->
+    <script type="module">
+        import { createClient } from "https://cdn.jsdelivr.net/npm/@supabase/supabase-js/+esm";
+
+        // Your Exact Supabase Config
+        const supabaseUrl = 'https://eqgpmrdzzxisoqmrjldd.supabase.co';
+        const supabaseKey = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6ImVxZ3BtcmR6enhpc29xbXJqbGRkIiwicm9sZSI6ImFub24iLCJpYXQiOjE3Nzk1MzMwMjcsImV4cCI6MjA5NTEwOTAyN30.MDA_HKm-1Xm0PP73agQtUJTx-SijYhynAdaWrKdcoZM';
+        const supabase = createClient(supabaseUrl, supabaseKey);
+
+        let currentStep = 1;
+        let userData = {}; 
+
+        window.nextStep = (step) => switchStep(currentStep, step);
+        window.prevStep = (step) => switchStep(currentStep, step);
+
+        window.validateAndNext = (step) => {
+            const pass = document.getElementById('pass-input').value;
+            const confirm = document.getElementById('confirm-pass-input').value;
+            if (pass.length < 6) { alert("Password must be at least 6 characters long!"); return; }
+            if (pass !== confirm) { alert("Passwords do not match!"); return; }
+            window.nextStep(step);
+        }
+
+        function switchStep(from, to) {
+            const currentEl = document.getElementById(`step-${from}`);
+            const nextEl = document.getElementById(`step-${to}`);
+            
+            currentEl.classList.remove('animate-fade-in-up');
+            currentEl.classList.add('animate-fade-out-down');
+
+            setTimeout(() => {
+                currentEl.classList.add('hidden');
+                currentEl.classList.remove('animate-fade-out-down');
+                nextEl.classList.remove('hidden');
+                void nextEl.offsetWidth;
+                nextEl.classList.add('animate-fade-in-up');
+                
+                if (to === 'otp' || to === 'success') {
+                    document.getElementById('progress-dots').classList.add('hidden');
+                } else {
+                    for(let i=1; i<=3; i++) {
+                        const dot = document.getElementById(`dot-${i}`);
+                        if(dot) i === to ? dot.classList.add('active') : dot.classList.remove('active');
+                    }
+                }
+                currentStep = to;
+            }, 400);
+        }
+
+        // PHASE 1: Create Account & Send OTP
+        window.sendVerification = async () => {
+            const btn = document.getElementById('send-otp-btn');
+            btn.innerHTML = 'Sending Code... ✦';
+
+            // Store all their inputs in memory for later
+            userData.email = document.getElementById('email-input').value;
+            userData.password = document.getElementById('pass-input').value;
+            userData.firstName = document.getElementById('fname-input').value;
+            userData.lastName = document.getElementById('lname-input').value;
+            userData.phone = document.getElementById('phone-input').value;
+            userData.street = document.getElementById('street-input').value;
+            userData.city = document.getElementById('city-input').value;
+            userData.state = document.getElementById('state-input').value;
+            userData.zip = document.getElementById('zip-input').value;
+
+            // Ask Supabase to create the user and send the email
+            const { data, error } = await supabase.auth.signUp({
+                email: userData.email,
+                password: userData.password,
+            });
+
+            if (error) {
+                console.error("Auth Error:", error);
+                alert("Error: " + error.message);
+                btn.innerHTML = 'Send Code <span class="transition-transform duration-300 group-hover:translate-x-2">✦</span>';
+                return;
+            }
+
+            // It worked! Move to the OTP screen.
+            switchStep(3, 'otp');
+        };
+
+        // PHASE 2: Verify the Code & Save their Profile
+        window.verifyAndCreateProfile = async () => {
+            const btn = document.getElementById('verify-btn');
+            const token = document.getElementById('otp-input').value;
+            btn.innerHTML = 'Verifying... ✦';
+
+            // Check the 6-digit code with Supabase
+            const { data, error } = await supabase.auth.verifyOtp({
+                email: userData.email,
+                token: token,
+                type: 'signup'
+            });
+
+            if (error) {
+                console.error("OTP Error:", error);
+                alert("Invalid Code! The stars do not align.");
+                btn.innerHTML = 'Verify & Enter <span class="transition-transform duration-300 group-hover:rotate-180">✦</span>';
+                return;
+            }
+
+            // Code was correct! They are officially logged in. Now save their shipping data.
+            const uid = data.session.user.id;
+
+            const { error: profileError } = await supabase
+                .from('profiles')
+                .insert([
+                    { 
+                        id: uid, 
+                        first_name: userData.firstName,
+                        last_name: userData.lastName,
+                        email: userData.email,
+                        phone: userData.phone,
+                        street_address: userData.street,
+                        city: userData.city,
+                        state: userData.state,
+                        zip_code: userData.zip
+                    }
+                ]);
+
+            if (profileError) {
+                console.error("Profile Saving Error:", profileError);
+                alert("Account verified, but address failed to save. You can update it in your profile later!");
+            }
+
+            // Bring up the beautiful welcome screen
+            switchStep('otp', 'success');
+        };
+
+        // Aesthetic Effects
+        document.addEventListener('mousemove', function(e) {
+            const sparkle = document.createElement('div');
+            sparkle.className = 'sparkle-trail'; sparkle.style.left = (e.clientX - 3) + 'px'; sparkle.style.top = (e.clientY - 3) + 'px';
+            document.body.appendChild(sparkle); setTimeout(() => sparkle.remove(), 600);
+        });
+        const allClickables = document.querySelectorAll('button, a');
+        allClickables.forEach(el => {
+            el.addEventListener('click', function(e) {
+                if(e.clientX === 0 && e.clientY === 0) return; 
+                for (let i = 0; i < 15; i++) {
+                    const glitter = document.createElement('div'); glitter.className = 'glitter-particle';
+                    document.body.appendChild(glitter); glitter.style.left = e.clientX + 'px'; glitter.style.top = e.clientY + 'px';
+                    const angle = Math.random() * Math.PI * 2; const velocity = 30 + Math.random() * 50; 
+                    const tx = Math.cos(angle) * velocity; const ty = Math.sin(angle) * velocity;
+                    const animation = glitter.animate([{ transform: 'translate(0, 0) scale(1)', opacity: 1 }, { transform: `translate(${tx}px, ${ty}px) scale(0)`, opacity: 0 }], { duration: 400 + Math.random() * 400, easing: 'cubic-bezier(0, .9, .57, 1)' });
+                    animation.onfinish = () => glitter.remove();
+                }
+            });
+        });
+    </script>
+</body>
+</html>

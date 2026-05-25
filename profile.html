@@ -1,0 +1,358 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Your Sanctuary | Nisshoku</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <link href="https://fonts.googleapis.com/css2?family=Cinzel:wght@400;500;600&family=Montserrat:wght@300;400;500&display=swap" rel="stylesheet">
+    <!-- Phosphor Icons (For those ultra-clean premium icons!) -->
+    <script src="https://unpkg.com/@phosphor-icons/web"></script>
+    
+    <script>
+        tailwind.config = {
+            theme: {
+                extend: {
+                    fontFamily: {
+                        serif: ['Cinzel', 'serif'],
+                        sans: ['Montserrat', 'sans-serif'],
+                    },
+                    colors: {
+                        brand: {
+                            darkest: '#1A1022',
+                            dark: '#2B163D',
+                            purple: '#3E1F5C',
+                            lightPurple: '#6B4C9A',
+                            gold: '#D4B88C',
+                            lightGold: '#F2E7C6'
+                        }
+                    },
+                    keyframes: {
+                        fadeInUp: {
+                            '0%': { opacity: '0', transform: 'translateY(20px)' },
+                            '100%': { opacity: '1', transform: 'translateY(0)' },
+                        },
+                        fadeIn: {
+                            '0%': { opacity: '0' },
+                            '100%': { opacity: '1' },
+                        }
+                    },
+                    animation: {
+                        'fade-in-up': 'fadeInUp 0.6s cubic-bezier(0.16, 1, 0.3, 1) forwards',
+                        'fade-in': 'fadeIn 0.3s ease-out forwards',
+                    }
+                }
+            }
+        }
+    </script>
+
+    <style>
+        body, a, button { cursor: none; }
+        body { overflow-x: hidden; }
+
+        /* Custom Scrollbar for Modals */
+        ::-webkit-scrollbar { width: 6px; }
+        ::-webkit-scrollbar-track { background: rgba(26, 16, 34, 0.8); }
+        ::-webkit-scrollbar-thumb { background: #D4B88C; border-radius: 10px; }
+
+        .sparkle-trail {
+            position: fixed;
+            pointer-events: none;
+            width: 6px;
+            height: 6px;
+            border-radius: 50%;
+            background-color: #D4B88C;
+            box-shadow: 0 0 10px #D4B88C, 0 0 20px #D4B88C;
+            z-index: 9998;
+            animation: fadeOut 0.6s ease-out forwards;
+        }
+
+        @keyframes fadeOut {
+            0% { opacity: 1; transform: scale(1) translateY(0); }
+            100% { opacity: 0; transform: scale(0.2) translateY(-20px); }
+        }
+
+        .glitter-particle {
+            position: fixed;
+            pointer-events: none;
+            width: 4px;
+            height: 4px;
+            background-color: #F2E7C6;
+            border-radius: 50%;
+            box-shadow: 0 0 8px #D4B88C, 0 0 12px #fff;
+            z-index: 9999;
+        }
+
+        .premium-input {
+            width: 100%;
+            background: transparent;
+            border: none;
+            border-bottom: 1px solid rgba(212, 184, 140, 0.3);
+            color: #F2E7C6;
+            padding: 12px 0;
+            font-family: 'Montserrat', sans-serif;
+            font-size: 14px;
+            letter-spacing: 0.1em;
+            transition: all 0.3s ease;
+        }
+
+        .premium-input:focus {
+            outline: none;
+            border-bottom: 1px solid #D4B88C;
+            box-shadow: 0 2px 10px -2px rgba(212, 184, 140, 0.2);
+        }
+
+        .premium-input::placeholder { color: rgba(212, 184, 140, 0.4); text-transform: lowercase; }
+
+        .premium-btn {
+            position: relative;
+            overflow: hidden;
+            box-shadow: 0 0 15px rgba(220, 179, 123, 0.1);
+        }
+
+        .premium-btn::before {
+            content: '';
+            position: absolute;
+            top: 0;
+            left: -100%;
+            width: 50%;
+            height: 100%;
+            background: linear-gradient(to right, rgba(255,255,255,0) 0%, rgba(220,179,123,0.3) 50%, rgba(255,255,255,0) 100%);
+            transform: skewX(-25deg);
+            transition: all 0.7s ease;
+        }
+
+        .premium-btn:hover::before { left: 150%; }
+
+        /* Dashboard Card Hover Effect */
+        .dash-card {
+            transition: all 0.4s cubic-bezier(0.16, 1, 0.3, 1);
+        }
+        .dash-card:hover {
+            transform: translateY(-5px);
+            box-shadow: 0 10px 30px -10px rgba(212, 184, 140, 0.2);
+            border-color: rgba(212, 184, 140, 0.5);
+        }
+        .dash-card:hover i {
+            color: #F2E7C6;
+            transform: scale(1.1);
+        }
+    </style>
+</head>
+<body class="text-white min-h-screen font-sans selection:bg-brand-purple selection:text-brand-lightGold relative">
+
+    <!-- Blurred Background -->
+    <div class="fixed top-0 left-0 w-full h-full -z-20 bg-cover bg-center bg-no-repeat blur-xl scale-110" style="background-image: url('bg-eclipse.png');"></div>
+    <div class="fixed top-0 left-0 w-full h-full -z-10 bg-brand-darkest/80"></div>
+
+    <!-- Navbar -->
+    <nav class="w-full flex justify-between items-center px-8 py-8 md:px-16 absolute top-0 z-40">
+        <a href="index.html" class="text-xl tracking-[0.25em] font-serif text-brand-gold hover:text-white transition duration-300">
+            NISSHOKU
+        </a>
+        <button onclick="logout()" class="text-xs tracking-widest text-gray-400 hover:text-brand-gold uppercase transition">Logout</button>
+    </nav>
+
+    <!-- Main Profile Container -->
+    <div class="min-h-screen flex items-center justify-center pt-24 pb-12 px-6">
+        <main class="w-full max-w-4xl opacity-0 animate-fade-in-up">
+            
+            <!-- Welcome Header -->
+            <div class="text-center mb-16">
+                <div class="w-24 h-24 mx-auto rounded-full border-2 border-brand-gold/50 mb-6 flex items-center justify-center bg-brand-purple/20 overflow-hidden">
+                    <i class="ph-light ph-user text-4xl text-brand-gold"></i>
+                </div>
+                <h1 class="font-serif text-3xl md:text-4xl text-brand-gold tracking-widest mb-2" id="user-display-name">WELCOME, STACIS</h1>
+                <p class="text-xs tracking-widest text-brand-lightPurple lowercase">manage your sanctuary</p>
+            </div>
+
+            <!-- Dashboard Grid -->
+            <div class="grid grid-cols-1 md:grid-cols-3 gap-6">
+                
+                <!-- Edit Profile Button -->
+                <button onclick="openModal('profile-modal')" class="dash-card bg-brand-darkest/40 backdrop-blur-md border border-brand-purple/30 p-8 flex flex-col items-center justify-center group">
+                    <i class="ph-light ph-identification-card text-5xl text-brand-gold/70 mb-4 transition-all duration-300"></i>
+                    <h3 class="font-serif tracking-widest text-brand-gold mb-2">Profile</h3>
+                    <p class="text-[10px] tracking-widest text-gray-400 uppercase text-center">Edit details & numbers</p>
+                </button>
+
+                <!-- Orders Button -->
+                <button onclick="openModal('orders-modal')" class="dash-card bg-brand-darkest/40 backdrop-blur-md border border-brand-purple/30 p-8 flex flex-col items-center justify-center group">
+                    <i class="ph-light ph-package text-5xl text-brand-gold/70 mb-4 transition-all duration-300"></i>
+                    <h3 class="font-serif tracking-widest text-brand-gold mb-2">Orders</h3>
+                    <p class="text-[10px] tracking-widest text-gray-400 uppercase text-center">Track your jewelry</p>
+                </button>
+
+                <!-- Cart Button -->
+                <button onclick="window.location.href='cart.html'" class="dash-card bg-brand-darkest/40 backdrop-blur-md border border-brand-purple/30 p-8 flex flex-col items-center justify-center group">
+                    <i class="ph-light ph-tote text-5xl text-brand-gold/70 mb-4 transition-all duration-300"></i>
+                    <h3 class="font-serif tracking-widest text-brand-gold mb-2">Cart</h3>
+                    <p class="text-[10px] tracking-widest text-gray-400 uppercase text-center">View saved items</p>
+                </button>
+
+            </div>
+        </main>
+    </div>
+
+    <!-- ================= MODALS (WINDOWS) ================= -->
+
+    <!-- 1. Edit Profile Modal -->
+    <div id="profile-modal" class="fixed inset-0 z-50 flex items-center justify-center bg-black/70 backdrop-blur-sm hidden opacity-0 transition-opacity duration-300">
+        <div class="bg-brand-darkest/95 border border-brand-gold/30 w-full max-w-xl mx-4 max-h-[85vh] overflow-y-auto relative shadow-2xl p-8 md:p-12">
+            <!-- Close Btn -->
+            <button onclick="closeModal('profile-modal')" class="absolute top-6 right-6 text-brand-gold hover:text-white transition transform hover:rotate-90">
+                <i class="ph-light ph-x text-2xl"></i>
+            </button>
+
+            <h2 class="font-serif text-2xl text-brand-gold tracking-widest text-center mb-2">YOUR DETAILS</h2>
+            <p class="text-center text-xs tracking-widest text-gray-400 mb-10 lowercase">update your identity</p>
+
+            <div class="space-y-6">
+                <div class="flex gap-4">
+                    <input type="text" placeholder="first name" value="Stacis" class="premium-input w-1/2">
+                    <input type="text" placeholder="last name" value="Studios" class="premium-input w-1/2">
+                </div>
+                
+                <!-- The Two Numbers Requested! -->
+                <div class="flex gap-4">
+                    <div class="w-1/2">
+                        <label class="text-[9px] tracking-widest text-brand-lightPurple uppercase">Primary Phone</label>
+                        <input type="tel" placeholder="+91 00000 00000" class="premium-input">
+                    </div>
+                    <div class="w-1/2">
+                        <label class="text-[9px] tracking-widest text-brand-lightPurple uppercase">Alt Phone</label>
+                        <input type="tel" placeholder="Secondary number" class="premium-input">
+                    </div>
+                </div>
+
+                <div>
+                    <label class="text-[9px] tracking-widest text-brand-lightPurple uppercase">Shipping Address</label>
+                    <input type="text" placeholder="street address" class="premium-input mt-1">
+                </div>
+                <div class="flex gap-4">
+                    <input type="text" placeholder="city" class="premium-input w-1/3">
+                    <input type="text" placeholder="state" class="premium-input w-1/3">
+                    <input type="text" placeholder="zip code" class="premium-input w-1/3">
+                </div>
+            </div>
+
+            <button onclick="closeModal('profile-modal')" class="premium-btn w-full mt-10 border border-brand-gold text-brand-darkest bg-brand-gold py-4 text-xs tracking-[0.2em] uppercase hover:bg-brand-lightGold transition duration-300">
+                Save Changes ✦
+            </button>
+        </div>
+    </div>
+
+    <!-- 2. Orders Modal -->
+    <div id="orders-modal" class="fixed inset-0 z-50 flex items-center justify-center bg-black/70 backdrop-blur-sm hidden opacity-0 transition-opacity duration-300">
+        <div class="bg-brand-darkest/95 border border-brand-gold/30 w-full max-w-xl mx-4 max-h-[80vh] overflow-y-auto relative shadow-2xl p-8 md:p-12">
+            <!-- Close Btn -->
+            <button onclick="closeModal('orders-modal')" class="absolute top-6 right-6 text-brand-gold hover:text-white transition transform hover:rotate-90">
+                <i class="ph-light ph-x text-2xl"></i>
+            </button>
+
+            <h2 class="font-serif text-2xl text-brand-gold tracking-widest text-center mb-2">ORDER HISTORY</h2>
+            <p class="text-center text-xs tracking-widest text-gray-400 mb-10 lowercase">track the stars</p>
+
+            <!-- Order List (Dummy Data for now) -->
+            <div class="space-y-4">
+                
+                <!-- Order Item 1 -->
+                <div class="border border-brand-purple/30 bg-brand-purple/10 p-4 flex justify-between items-center hover:border-brand-gold/50 transition">
+                    <div>
+                        <p class="text-xs tracking-widest text-brand-gold uppercase mb-1">Order #NSK-8892</p>
+                        <p class="text-[10px] tracking-widest text-gray-400">1x Eclipse Obsidian Ring</p>
+                    </div>
+                    <div class="text-right">
+                        <span class="inline-block px-3 py-1 bg-green-900/40 text-green-400 border border-green-500/30 text-[9px] tracking-widest uppercase">Delivered</span>
+                    </div>
+                </div>
+
+                <!-- Order Item 2 -->
+                <div class="border border-brand-purple/30 bg-brand-purple/10 p-4 flex justify-between items-center hover:border-brand-gold/50 transition">
+                    <div>
+                        <p class="text-xs tracking-widest text-brand-gold uppercase mb-1">Order #NSK-9014</p>
+                        <p class="text-[10px] tracking-widest text-gray-400">2x Lunar Gold Pendant</p>
+                    </div>
+                    <div class="text-right">
+                        <span class="inline-block px-3 py-1 bg-brand-gold/20 text-brand-gold border border-brand-gold/30 text-[9px] tracking-widest uppercase">In Transit</span>
+                    </div>
+                </div>
+
+            </div>
+
+            <button onclick="closeModal('orders-modal')" class="w-full mt-10 border border-brand-purple text-brand-lightPurple py-4 text-xs tracking-[0.2em] uppercase hover:bg-brand-purple/20 transition">
+                Close Window
+            </button>
+        </div>
+    </div>
+
+    <!-- Magic Scripts -->
+    <script>
+        // Modal Logic
+        function openModal(modalId) {
+            const modal = document.getElementById(modalId);
+            modal.classList.remove('hidden');
+            // Slight delay to allow display:block to apply before animating opacity
+            setTimeout(() => {
+                modal.classList.remove('opacity-0');
+            }, 10);
+        }
+
+        function closeModal(modalId) {
+            const modal = document.getElementById(modalId);
+            modal.classList.add('opacity-0');
+            setTimeout(() => {
+                modal.classList.add('hidden');
+            }, 300); // Matches the duration-300 class
+        }
+
+        // Close modal if clicking outside the window
+        document.getElementById('profile-modal').addEventListener('click', function(e) {
+            if (e.target === this) closeModal('profile-modal');
+        });
+        document.getElementById('orders-modal').addEventListener('click', function(e) {
+            if (e.target === this) closeModal('orders-modal');
+        });
+
+        // Aesthetic Glitter Code
+        document.addEventListener('mousemove', function(e) {
+            const sparkle = document.createElement('div');
+            sparkle.className = 'sparkle-trail';
+            sparkle.style.left = (e.clientX - 3) + 'px';
+            sparkle.style.top = (e.clientY - 3) + 'px';
+            document.body.appendChild(sparkle);
+            setTimeout(() => sparkle.remove(), 600);
+        });
+
+        const allClickables = document.querySelectorAll('button, a, .dash-card');
+        allClickables.forEach(el => {
+            el.addEventListener('click', function(e) {
+                if(e.clientX === 0 && e.clientY === 0) return; 
+                for (let i = 0; i < 15; i++) {
+                    createGlitterExplosion(e.clientX, e.clientY);
+                }
+            });
+        });
+
+        function createGlitterExplosion(x, y) {
+            const glitter = document.createElement('div');
+            glitter.className = 'glitter-particle';
+            document.body.appendChild(glitter);
+            glitter.style.left = x + 'px';
+            glitter.style.top = y + 'px';
+            const angle = Math.random() * Math.PI * 2;
+            const velocity = 30 + Math.random() * 50; 
+            const tx = Math.cos(angle) * velocity;
+            const ty = Math.sin(angle) * velocity;
+            const animation = glitter.animate([
+                { transform: 'translate(0, 0) scale(1)', opacity: 1 },
+                { transform: `translate(${tx}px, ${ty}px) scale(0)`, opacity: 0 }
+            ], {
+                duration: 400 + Math.random() * 400, 
+                easing: 'cubic-bezier(0, .9, .57, 1)' 
+            });
+            animation.onfinish = () => glitter.remove();
+        }
+    </script>
+</body>
+</html>

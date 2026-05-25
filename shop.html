@@ -1,0 +1,200 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Shop | Nisshoku</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <link href="https://fonts.googleapis.com/css2?family=Cinzel:wght@400;500;600&family=Montserrat:wght@300;400&display=swap" rel="stylesheet">
+    <script src="https://unpkg.com/@phosphor-icons/web"></script>
+    
+    <script>
+        tailwind.config = {
+            theme: {
+                extend: {
+                    fontFamily: { serif: ['Cinzel', 'serif'], sans: ['Montserrat', 'sans-serif'], },
+                    colors: { brand: { darkest: '#1A1022', dark: '#2B163D', purple: '#3E1F5C', lightPurple: '#6B4C9A', gold: '#D4B88C', lightGold: '#F2E7C6' } },
+                    keyframes: { fadeInUp: { '0%': { opacity: '0', transform: 'translateY(20px)' }, '100%': { opacity: '1', transform: 'translateY(0)' }, } },
+                    animation: { 'fade-in-up': 'fadeInUp 0.8s cubic-bezier(0.16, 1, 0.3, 1) forwards', }
+                }
+            }
+        }
+    </script>
+    <style>
+        body, a, button { cursor: none; }
+        body { overflow-x: hidden; }
+        .sparkle-trail { position: fixed; pointer-events: none; width: 6px; height: 6px; border-radius: 50%; background-color: #D4B88C; box-shadow: 0 0 10px #D4B88C, 0 0 20px #D4B88C; z-index: 9998; animation: fadeOut 0.6s ease-out forwards; }
+        @keyframes fadeOut { 0% { opacity: 1; transform: scale(1) translateY(0); } 100% { opacity: 0; transform: scale(0.2) translateY(-20px); } }
+        .glitter-particle { position: fixed; pointer-events: none; width: 4px; height: 4px; background-color: #F2E7C6; border-radius: 50%; box-shadow: 0 0 8px #D4B88C, 0 0 12px #fff; z-index: 9999; }
+        .cart-btn { position: relative; overflow: hidden; transition: all 0.4s ease; }
+        .cart-btn:hover { background-color: #3E1F5C; border-color: #3E1F5C; box-shadow: 0 0 20px rgba(62, 31, 92, 0.5); }
+        .product-card:hover .product-img { transform: scale(1.05); }
+    </style>
+</head>
+<body class="text-white min-h-screen font-sans selection:bg-brand-purple selection:text-brand-lightGold relative">
+
+    <!-- Background -->
+    <div class="fixed top-0 left-0 w-full h-full -z-20 bg-cover bg-center bg-no-repeat blur-xl scale-110" style="background-image: url('bg-eclipse.png');"></div>
+    <div class="fixed top-0 left-0 w-full h-full -z-10 bg-brand-darkest/70"></div>
+
+    <!-- Navbar -->
+    <nav class="flex justify-between items-center px-8 py-10 md:px-16 w-full border-b border-brand-purple/20 bg-brand-darkest/30 backdrop-blur-md sticky top-0 z-50">
+        <div class="text-2xl tracking-[0.25em] font-serif text-brand-gold cursor-pointer hover:text-white transition duration-300">
+            <a href="index.html">NISSHOKU</a>
+        </div>
+        <div class="flex space-x-6 text-brand-gold">
+            <a href="login.html" id="profile-link"><button class="hover:text-brand-lightGold transition duration-300"><i class="ph-light ph-user text-2xl"></i></button></a>
+            <a href="cart.html"><button class="hover:text-brand-lightGold transition duration-300 relative"><i class="ph-light ph-tote text-2xl"></i><span class="absolute -top-1 -right-1 w-2 h-2 bg-brand-lightPurple rounded-full"></span></button></a>
+        </div>
+    </nav>
+
+    <!-- Header -->
+    <header class="text-center pt-16 pb-12 px-8 relative z-10">
+        <h1 class="text-3xl md:text-4xl font-serif text-brand-gold tracking-[0.2em] mb-4 opacity-0 animate-fade-in-up" style="animation-delay: 0.1s;">COLLECTIONS</h1>
+        <div class="text-brand-gold text-sm opacity-0 animate-fade-in-up" style="animation-delay: 0.2s;">✦</div>
+    </header>
+
+    <!-- Dynamic Main Content -->
+    <main class="max-w-6xl mx-auto px-8 md:px-16 pb-24 relative z-10">
+        
+        <!-- Loading State -->
+        <div id="loading-screen" class="w-full flex flex-col items-center justify-center py-20 opacity-0 animate-fade-in-up" style="animation-delay: 0.3s;">
+            <i class="ph-light ph-spinner-gap animate-spin text-4xl text-brand-gold mb-4"></i>
+            <p class="text-[10px] tracking-widest uppercase text-brand-lightPurple">Summoning collections...</p>
+        </div>
+
+        <!-- The Empty Grid (Waiting for Javascript to inject products) -->
+        <div id="product-grid" class="grid grid-cols-1 md:grid-cols-3 gap-10 hidden"></div>
+        
+    </main>
+
+    <!-- THE BRAIN (Javascript & Supabase) -->
+    <script type="module">
+        import { createClient } from "https://cdn.jsdelivr.net/npm/@supabase/supabase-js/+esm";
+
+        // 1. Supabase Config
+        const supabaseUrl = 'https://eqgpmrdzzxisoqmrjldd.supabase.co';
+        const supabaseKey = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6ImVxZ3BtcmR6enhpc29xbXJqbGRkIiwicm9sZSI6ImFub24iLCJpYXQiOjE3Nzk1MzMwMjcsImV4cCI6MjA5NTEwOTAyN30.MDA_HKm-1Xm0PP73agQtUJTx-SijYhynAdaWrKdcoZM';
+        const supabase = createClient(supabaseUrl, supabaseKey);
+
+        let currentUserId = null;
+        const profileLink = document.getElementById('profile-link');
+
+        // 2. Auth Check
+        async function checkSession() {
+            const { data: { session } } = await supabase.auth.getSession();
+            if (session) {
+                currentUserId = session.user.id;
+                profileLink.href = "profile.html";
+            }
+        }
+        checkSession();
+
+        // 3. DYNAMIC SHOP BUILDER
+        async function loadShop() {
+            const grid = document.getElementById('product-grid');
+            const loader = document.getElementById('loading-screen');
+
+            // Fetch all products from Supabase
+            const { data, error } = await supabase.from('products').select('*');
+
+            if (error) {
+                console.error("Failed to load products:", error);
+                loader.innerHTML = '<p class="text-[10px] tracking-widest text-red-400 uppercase">Error loading collections. The stars are misaligned.</p>';
+                return;
+            }
+
+            // Hide loader, show grid
+            loader.classList.add('hidden');
+            grid.classList.remove('hidden');
+
+            // Loop through each product and build the HTML card
+            data.forEach((product, index) => {
+                // Add a slight stagger effect based on index so they fade in one by one
+                const delay = 0.1 * index; 
+
+                const cardHTML = `
+                    <div class="product-card group flex flex-col opacity-0 animate-fade-in-up" style="animation-delay: ${delay}s;">
+                        <div class="w-full aspect-video bg-brand-dark mb-6 overflow-hidden relative border border-brand-purple/30 backdrop-blur-sm bg-brand-dark/50">
+                            <a href="product.html?id=${product.id}">
+                                <img src="${product.image_url}" alt="${product.name}" class="product-img absolute inset-0 w-full h-full object-cover transition-transform duration-700 ease-out z-0">
+                            </a>
+                            <div class="absolute inset-0 bg-gradient-to-t from-brand-darkest/90 via-transparent to-transparent z-10 pointer-events-none"></div>
+                        </div>
+                        <div class="text-center">
+                            <h3 class="font-sans text-[11px] tracking-[0.25em] text-brand-lightGold uppercase mb-2">${product.name}</h3>
+                            <p class="font-serif text-gray-300 mb-6 tracking-widest text-sm">₹${product.price}</p>
+                            <div class="flex flex-col gap-3">
+                                <button onclick="addToCart('${product.name}', ${product.price}, '${product.image_url}', this)" class="cart-btn w-full border border-brand-gold text-brand-gold py-3 text-[10px] tracking-[0.2em] uppercase flex justify-center items-center gap-2">
+                                    Add to Cart <span class="text-xs transition-transform duration-300 group-hover:rotate-90">✦</span>
+                                </button>
+                                <button onclick="buyNow('${product.name}', ${product.price}, '${product.image_url}', this)" class="cart-btn w-full border border-brand-gold bg-brand-gold text-brand-darkest py-3 text-[10px] tracking-[0.2em] uppercase flex justify-center items-center gap-2 hover:bg-brand-lightGold hover:border-brand-lightGold transition duration-300">
+                                    Buy Now <span class="text-xs transition-transform duration-300 group-hover:translate-x-1">✦</span>
+                                </button>
+                            </div>
+                        </div>
+                    </div>
+                `;
+                
+                // Inject it into the page
+                grid.innerHTML += cardHTML;
+            });
+        }
+
+        // Fire the builder instantly!
+        loadShop();
+
+        // 4. CART LOGIC
+        window.addToCart = async (productName, price, imageUrl, btnElement) => {
+            if (!currentUserId) { window.location.href = "login.html"; return; }
+            const originalText = btnElement.innerHTML;
+            btnElement.innerHTML = 'Adding... ✦';
+            try {
+                const { error } = await supabase.from('cart').insert([
+                    { user_id: currentUserId, product_name: productName, price: price, image_url: imageUrl, size: 'OS' }
+                ]);
+                if (error) throw error;
+                btnElement.innerHTML = 'Added! ✦';
+                setTimeout(() => { btnElement.innerHTML = originalText; }, 2000);
+            } catch (err) {
+                console.error(err);
+                btnElement.innerHTML = 'Error ✦';
+                setTimeout(() => { btnElement.innerHTML = originalText; }, 2000);
+            }
+        };
+
+        window.buyNow = async (productName, price, imageUrl, btnElement) => {
+            if (!currentUserId) { window.location.href = "login.html"; return; }
+            btnElement.innerHTML = 'Securing... ✦';
+            try {
+                const { error } = await supabase.from('cart').insert([
+                    { user_id: currentUserId, product_name: productName, price: price, image_url: imageUrl, size: 'OS' }
+                ]);
+                if (error) throw error;
+                window.location.href = "cart.html";
+            } catch (err) {
+                btnElement.innerHTML = 'Error ✦';
+            }
+        };
+
+        // --- GLITTER FX ---
+        document.addEventListener('mousemove', function(e) {
+            const sparkle = document.createElement('div'); sparkle.className = 'sparkle-trail'; sparkle.style.left = (e.clientX - 3) + 'px'; sparkle.style.top = (e.clientY - 3) + 'px';
+            document.body.appendChild(sparkle); setTimeout(() => sparkle.remove(), 600);
+        });
+        document.body.addEventListener('click', function(e) {
+            if(e.target.closest('button') || e.target.closest('a')) {
+                if(e.clientX === 0 && e.clientY === 0) return;
+                for (let i = 0; i < 15; i++) {
+                    const glitter = document.createElement('div'); glitter.className = 'glitter-particle';
+                    document.body.appendChild(glitter); glitter.style.left = e.clientX + 'px'; glitter.style.top = e.clientY + 'px';
+                    const angle = Math.random() * Math.PI * 2; const velocity = 30 + Math.random() * 50; 
+                    const tx = Math.cos(angle) * velocity; const ty = Math.sin(angle) * velocity;
+                    const animation = glitter.animate([{ transform: 'translate(0, 0) scale(1)', opacity: 1 }, { transform: `translate(${tx}px, ${ty}px) scale(0)`, opacity: 0 }], { duration: 400 + Math.random() * 400, easing: 'cubic-bezier(0, .9, .57, 1)' });
+                    animation.onfinish = () => glitter.remove();
+                }
+            }
+        });
+    </script>
+</body>
+</html>

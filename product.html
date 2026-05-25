@@ -1,0 +1,238 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Product | Nisshoku</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <link href="https://fonts.googleapis.com/css2?family=Cinzel:wght@400;500;600&family=Montserrat:wght@300;400;500&display=swap" rel="stylesheet">
+    <script src="https://unpkg.com/@phosphor-icons/web"></script>
+    
+    <script>
+        tailwind.config = { theme: { extend: { fontFamily: { serif: ['Cinzel', 'serif'], sans: ['Montserrat', 'sans-serif'], }, colors: { brand: { darkest: '#1A1022', dark: '#2B163D', purple: '#3E1F5C', lightPurple: '#6B4C9A', gold: '#D4B88C', lightGold: '#F2E7C6' } } } } }
+    </script>
+    <style>
+        body, a, button, label { cursor: none; }
+        body { overflow-x: hidden; }
+        .no-scrollbar::-webkit-scrollbar { display: none; } .no-scrollbar { -ms-overflow-style: none; scrollbar-width: none; }
+        ::-webkit-scrollbar { width: 6px; } ::-webkit-scrollbar-track { background: rgba(26, 16, 34, 1); } ::-webkit-scrollbar-thumb { background: #D4B88C; border-radius: 10px; }
+        .sparkle-trail { position: fixed; pointer-events: none; width: 6px; height: 6px; border-radius: 50%; background-color: #D4B88C; box-shadow: 0 0 10px #D4B88C, 0 0 20px #D4B88C; z-index: 9998; animation: fadeOut 0.6s ease-out forwards; }
+        @keyframes fadeOut { 0% { opacity: 1; transform: scale(1) translateY(0); } 100% { opacity: 0; transform: scale(0.2) translateY(-20px); } }
+        .glitter-particle { position: fixed; pointer-events: none; width: 4px; height: 4px; background-color: #F2E7C6; border-radius: 50%; box-shadow: 0 0 8px #D4B88C, 0 0 12px #fff; z-index: 9999; }
+        .premium-btn { position: relative; overflow: hidden; box-shadow: 0 0 15px rgba(220, 179, 123, 0.1); transition: all 0.4s ease; }
+        .premium-btn::before { content: ''; position: absolute; top: 0; left: -100%; width: 50%; height: 100%; background: linear-gradient(to right, rgba(255,255,255,0) 0%, rgba(220,179,123,0.3) 50%, rgba(255,255,255,0) 100%); transform: skewX(-25deg); transition: all 0.7s ease; }
+        .premium-btn:hover::before { left: 150%; } .premium-btn:hover { box-shadow: 0 0 25px rgba(220, 179, 123, 0.4); }
+        .size-radio:checked + label { border-color: #D4B88C; color: #1A1022; background-color: #D4B88C; }
+    </style>
+</head>
+<body class="text-white min-h-screen font-sans selection:bg-brand-purple selection:text-brand-lightGold bg-brand-darkest relative">
+
+    <div class="fixed top-[-20%] left-[-10%] w-[50vw] h-[50vw] bg-brand-purple/20 rounded-full blur-[120px] pointer-events-none -z-10"></div>
+    <div class="fixed bottom-[-20%] right-[-10%] w-[50vw] h-[50vw] bg-brand-gold/10 rounded-full blur-[120px] pointer-events-none -z-10"></div>
+
+    <nav class="w-full flex justify-between items-center px-8 py-8 md:px-16 fixed top-0 z-40 bg-gradient-to-b from-brand-darkest/90 to-transparent backdrop-blur-sm">
+        <a href="shop.html" class="text-xl tracking-[0.25em] font-serif text-brand-gold hover:text-white transition duration-300">
+            <i class="ph-light ph-arrow-left inline-block mr-2 text-lg"></i> BACK TO SHOP
+        </a>
+        <div class="flex gap-6 text-brand-gold">
+            <a href="login.html" id="profile-link" class="hover:text-white transition"><i class="ph-light ph-user text-2xl"></i></a>
+            <a href="cart.html" class="hover:text-white transition"><i class="ph-light ph-tote text-2xl"></i></a>
+        </div>
+    </nav>
+
+    <!-- LOADING STATE -->
+    <div id="loading-screen" class="min-h-screen flex flex-col items-center justify-center">
+        <i class="ph-light ph-spinner-gap animate-spin text-4xl text-brand-gold mb-4"></i>
+        <p class="text-[10px] tracking-widest uppercase text-brand-lightPurple">Summoning product...</p>
+    </div>
+
+    <!-- MAIN PRODUCT LAYOUT (Hidden until loaded) -->
+    <main id="product-layout" class="hidden min-h-screen pt-32 px-4 md:px-12 lg:px-24 pb-20 max-w-[1600px] mx-auto flex-col md:flex-row gap-12 lg:gap-24 transition-opacity duration-1000 opacity-0">
+        
+        <!-- LEFT: DYNAMIC IMAGE GALLERY -->
+        <div class="w-full md:w-3/5 lg:w-2/3 relative">
+            <div class="flex overflow-x-auto snap-x snap-mandatory no-scrollbar gap-4 pb-4 items-center">
+                <div class="snap-center shrink-0 w-full md:w-[90%] aspect-video bg-brand-dark border border-brand-purple/30 flex items-center justify-center relative group overflow-hidden">
+                    <img id="main-image" src="" class="w-full h-full object-cover">
+                </div>
+            </div>
+        </div>
+
+        <!-- RIGHT: DYNAMIC INFO -->
+        <div class="w-full md:w-2/5 lg:w-1/3">
+            <div class="md:sticky md:top-32 space-y-8">
+                
+                <div>
+                    <h1 id="prod-title" class="font-serif text-3xl md:text-4xl text-brand-gold tracking-widest mb-3">Loading...</h1>
+                    <p id="prod-price" class="text-xl font-sans tracking-widest text-white">₹ 0/- piece</p>
+                </div>
+
+                <hr class="border-brand-purple/30">
+
+                <!-- Size Selector -->
+                <div>
+                    <div class="flex justify-between items-center mb-4">
+                        <span class="text-[10px] tracking-[0.2em] text-brand-lightPurple uppercase">Select Size</span>
+                        <a href="#" class="text-[9px] tracking-widest text-brand-gold hover:text-white transition">Size Guide</a>
+                    </div>
+                    <div class="flex flex-wrap gap-3">
+                        <div class="relative">
+                            <input type="radio" name="size" id="size-6" class="size-radio hidden" checked>
+                            <label for="size-6" class="cursor-none w-12 h-12 flex items-center justify-center border border-brand-purple/50 text-xs tracking-widest hover:border-brand-gold transition duration-300">6</label>
+                        </div>
+                        <div class="relative">
+                            <input type="radio" name="size" id="size-7" class="size-radio hidden">
+                            <label for="size-7" class="cursor-none w-12 h-12 flex items-center justify-center border border-brand-purple/50 text-xs tracking-widest hover:border-brand-gold transition duration-300">7</label>
+                        </div>
+                        <div class="relative">
+                            <input type="radio" name="size" id="size-8" class="size-radio hidden">
+                            <label for="size-8" class="cursor-none w-12 h-12 flex items-center justify-center border border-brand-purple/50 text-xs tracking-widest hover:border-brand-gold transition duration-300">8</label>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Action Buttons -->
+                <div class="flex flex-col gap-3">
+                    <button onclick="handleAddToCart(this)" class="premium-btn w-full border border-brand-gold text-brand-gold py-5 text-xs tracking-[0.2em] uppercase flex justify-center items-center gap-2 group hover:bg-brand-purple/20 transition duration-300">
+                        Add to Cart <i class="ph-bold ph-plus transition-transform duration-300 group-hover:rotate-90"></i>
+                    </button>
+                    <button onclick="handleBuyNow(this)" class="premium-btn w-full border border-brand-gold text-brand-darkest bg-brand-gold py-5 text-xs tracking-[0.2em] uppercase flex justify-center items-center gap-2 group hover:bg-brand-lightGold transition duration-300">
+                        Buy Now <i class="ph-bold ph-arrow-right transition-transform duration-300 group-hover:translate-x-2"></i>
+                    </button>
+                </div>
+
+                <!-- Dynamic Details -->
+                <div class="space-y-4 pt-6 border-t border-brand-purple/30">
+                    <p id="prod-desc" class="text-xs text-gray-400 tracking-wider leading-relaxed lowercase"></p>
+                </div>
+            </div>
+        </div>
+    </main>
+
+    <!-- MAGIC DATABASE SCRIPT -->
+    <script type="module">
+        import { createClient } from "https://cdn.jsdelivr.net/npm/@supabase/supabase-js/+esm";
+
+        // 1. Supabase Config
+        const supabaseUrl = 'https://eqgpmrdzzxisoqmrjldd.supabase.co';
+        const supabaseKey = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6ImVxZ3BtcmR6enhpc29xbXJqbGRkIiwicm9sZSI6ImFub24iLCJpYXQiOjE3Nzk1MzMwMjcsImV4cCI6MjA5NTEwOTAyN30.MDA_HKm-1Xm0PP73agQtUJTx-SijYhynAdaWrKdcoZM';
+        const supabase = createClient(supabaseUrl, supabaseKey);
+
+        let currentUserId = null;
+        let loadedProduct = null;
+
+        // 2. Auth Check
+        async function checkSession() {
+            const { data: { session } } = await supabase.auth.getSession();
+            if (session) {
+                currentUserId = session.user.id;
+                document.getElementById('profile-link').href = "profile.html";
+            }
+        }
+        checkSession();
+
+        // 3. DYNAMIC DATA FETCHER
+        async function loadProductData() {
+            // Find out what product we are supposed to show by looking at the URL
+            const urlParams = new URLSearchParams(window.location.search);
+            const productId = urlParams.get('id');
+
+            if (!productId) {
+                alert("No product specified. Returning to shop.");
+                window.location.href = "shop.html";
+                return;
+            }
+
+            // Ask Supabase for this exact product
+            const { data, error } = await supabase.from('products').select('*').eq('id', productId).single();
+
+            if (error || !data) {
+                alert("Product lost in the void. Returning to shop.");
+                window.location.href = "shop.html";
+                return;
+            }
+
+            loadedProduct = data; // Save it in memory for the buttons
+
+            // Inject the data into the HTML!
+            document.title = `${data.name} | Nisshoku`;
+            document.getElementById('main-image').src = data.image_url;
+            document.getElementById('prod-title').innerText = data.name;
+            document.getElementById('prod-price').innerText = `₹ ${data.price}/- piece`;
+            document.getElementById('prod-desc').innerText = data.description;
+
+            // Hide loading, show product
+            document.getElementById('loading-screen').classList.add('hidden');
+            const layout = document.getElementById('product-layout');
+            layout.classList.remove('hidden');
+            layout.classList.add('flex');
+            setTimeout(() => { layout.classList.remove('opacity-0'); }, 50);
+        }
+
+        // Run the fetcher immediately!
+        loadProductData();
+
+        // 4. SMART BUTTONS
+        function getSelectedSize() {
+            const sizeInput = document.querySelector('input[name="size"]:checked');
+            return sizeInput ? sizeInput.id.replace('size-', '') : 'OS';
+        }
+
+        window.handleAddToCart = async (btn) => {
+            if (!currentUserId) { window.location.href = "login.html"; return; }
+            if (!loadedProduct) return;
+
+            const originalText = btn.innerHTML;
+            btn.innerHTML = 'Adding... ✦';
+            
+            try {
+                const { error } = await supabase.from('cart').insert([{ 
+                    user_id: currentUserId, product_name: loadedProduct.name, 
+                    price: loadedProduct.price, image_url: loadedProduct.image_url, size: getSelectedSize() 
+                }]);
+                if (error) throw error;
+                btn.innerHTML = 'Added! ✦';
+                setTimeout(() => { btn.innerHTML = originalText; }, 2000);
+            } catch (err) {
+                console.error(err);
+                btn.innerHTML = 'Error ✦';
+                setTimeout(() => { btn.innerHTML = originalText; }, 2000);
+            }
+        };
+
+        window.handleBuyNow = async (btn) => {
+            if (!currentUserId) { window.location.href = "login.html"; return; }
+            if (!loadedProduct) return;
+            
+            btn.innerHTML = 'Securing... ✦';
+            try {
+                const { error } = await supabase.from('cart').insert([{ 
+                    user_id: currentUserId, product_name: loadedProduct.name, 
+                    price: loadedProduct.price, image_url: loadedProduct.image_url, size: getSelectedSize() 
+                }]);
+                if (error) throw error;
+                window.location.href = "cart.html";
+            } catch (err) {
+                btn.innerHTML = 'Error ✦';
+            }
+        };
+
+        // --- Aesthetic Effects ---
+        document.addEventListener('mousemove', function(e) {
+            const sparkle = document.createElement('div'); sparkle.className = 'sparkle-trail'; sparkle.style.left = (e.clientX - 3) + 'px'; sparkle.style.top = (e.clientY - 3) + 'px';
+            document.body.appendChild(sparkle); setTimeout(() => sparkle.remove(), 600);
+        });
+        document.body.addEventListener('click', function(e) {
+            if(e.target.closest('button') || e.target.closest('a') || e.target.closest('label')) {
+                if(e.clientX === 0 && e.clientY === 0) return; 
+                for (let i = 0; i < 15; i++) {
+                    const glitter = document.createElement('div'); glitter.className = 'glitter-particle'; document.body.appendChild(glitter); glitter.style.left = e.clientX + 'px'; glitter.style.top = e.clientY + 'px';
+                    const angle = Math.random() * Math.PI * 2; const velocity = 30 + Math.random() * 50; const tx = Math.cos(angle) * velocity; const ty = Math.sin(angle) * velocity;
+                    const animation = glitter.animate([{ transform: 'translate(0, 0) scale(1)', opacity: 1 }, { transform: `translate(${tx}px, ${ty}px) scale(0)`, opacity: 0 }], { duration: 400 + Math.random() * 400, easing: 'cubic-bezier(0, .9, .57, 1)' });
+                    animation.onfinish = () => glitter.remove();
+                }
+            }
+        });
+    </script>
+</body>
+</html>
