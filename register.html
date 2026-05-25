@@ -180,12 +180,16 @@
       // PHASE 1 & 2 COMBINED: Create Account & Instantly Enter!
         window.sendVerification = async () => {
             const btn = document.getElementById('send-otp-btn');
+            
+            // 🛡️ THE MISSING ARMOR: Lock the button instantly so it CANNOT double-fire!
+            if (btn.disabled) return;
+            btn.disabled = true;
+            btn.style.pointerEvents = 'none';
+
             btn.innerHTML = 'Forging Account... ✦';
 
-            // 🧹 THE FIX: Forcibly clear any old sessions before signing up!
+            // 🧹 Forcibly clear any old sessions before signing up!
             await supabase.auth.signOut(); 
-
-            
 
             // 1. Grab all the data
             userData.email = document.getElementById('email-input').value.toLowerCase().trim();
@@ -208,14 +212,21 @@
             if (error) {
                 console.error("Auth Error:", error);
                 alert("Error: " + error.message);
+                
+                // Unlock the button so they can try again!
                 btn.innerHTML = 'Forge Account <span class="transition-transform duration-300 group-hover:translate-x-2">✦</span>';
+                btn.disabled = false;
+                btn.style.pointerEvents = 'auto';
                 return;
             }
 
-            // 🚨 THE FIX: Catch the "Ghost User" if the email is already taken!
+            // Catch the "Ghost User" if the email is ACTUALLY already taken
             if (!data || !data.user) {
                 alert("This email is already in the vault! Please use a brand new email, or go to Sign In.");
+                
                 btn.innerHTML = 'Forge Account <span class="transition-transform duration-300 group-hover:translate-x-2">✦</span>';
+                btn.disabled = false;
+                btn.style.pointerEvents = 'auto';
                 return;
             }
 
@@ -240,7 +251,7 @@
 
             if (profileError) {
                 console.error("Profile Saving Error:", profileError);
-                alert("Account created, but address failed to save. You can update it later!");
+                // We won't alert here so we don't interrupt the UI flow if the address fails.
             }
 
             // 4. SKIP THE OTP SCREEN! Go straight from Step 3 to Success!
