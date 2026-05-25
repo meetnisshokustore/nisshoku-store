@@ -1,0 +1,233 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Your Cart | Nisshoku</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <link href="https://fonts.googleapis.com/css2?family=Cinzel:wght@400;500;600&family=Montserrat:wght@300;400;500&display=swap" rel="stylesheet">
+    <script src="https://unpkg.com/@phosphor-icons/web"></script>
+    
+    <script>
+        tailwind.config = { theme: { extend: { fontFamily: { serif: ['Cinzel', 'serif'], sans: ['Montserrat', 'sans-serif'], }, colors: { brand: { darkest: '#1A1022', dark: '#2B163D', purple: '#3E1F5C', lightPurple: '#6B4C9A', gold: '#D4B88C', lightGold: '#F2E7C6' } }, keyframes: { fadeInUp: { '0%': { opacity: '0', transform: 'translateY(20px)' }, '100%': { opacity: '1', transform: 'translateY(0)' }, } }, animation: { 'fade-in-up': 'fadeInUp 0.8s cubic-bezier(0.16, 1, 0.3, 1) forwards', } } } }
+    </script>
+
+    <style>
+        body, a, button { cursor: none; }
+        body { overflow-x: hidden; }
+        ::-webkit-scrollbar { width: 6px; }
+        ::-webkit-scrollbar-track { background: rgba(26, 16, 34, 1); }
+        ::-webkit-scrollbar-thumb { background: #D4B88C; border-radius: 10px; }
+        .sparkle-trail { position: fixed; pointer-events: none; width: 6px; height: 6px; border-radius: 50%; background-color: #D4B88C; box-shadow: 0 0 10px #D4B88C, 0 0 20px #D4B88C; z-index: 9998; animation: fadeOut 0.6s ease-out forwards; }
+        @keyframes fadeOut { 0% { opacity: 1; transform: scale(1) translateY(0); } 100% { opacity: 0; transform: scale(0.2) translateY(-20px); } }
+        .glitter-particle { position: fixed; pointer-events: none; width: 4px; height: 4px; background-color: #F2E7C6; border-radius: 50%; box-shadow: 0 0 8px #D4B88C, 0 0 12px #fff; z-index: 9999; }
+        .premium-btn { position: relative; overflow: hidden; box-shadow: 0 0 15px rgba(220, 179, 123, 0.1); }
+        .premium-btn::before { content: ''; position: absolute; top: 0; left: -100%; width: 50%; height: 100%; background: linear-gradient(to right, rgba(255,255,255,0) 0%, rgba(220,179,123,0.3) 50%, rgba(255,255,255,0) 100%); transform: skewX(-25deg); transition: all 0.7s ease; }
+        .premium-btn:hover::before { left: 150%; }
+    </style>
+</head>
+<body class="text-white min-h-screen font-sans selection:bg-brand-purple selection:text-brand-lightGold bg-brand-darkest relative">
+
+    <div class="fixed top-[-20%] left-[-10%] w-[50vw] h-[50vw] bg-brand-purple/20 rounded-full blur-[120px] pointer-events-none -z-10"></div>
+    <div class="fixed bottom-[-20%] right-[-10%] w-[50vw] h-[50vw] bg-brand-gold/10 rounded-full blur-[120px] pointer-events-none -z-10"></div>
+
+    <nav class="w-full flex justify-between items-center px-8 py-8 md:px-16 fixed top-0 z-40 bg-gradient-to-b from-brand-darkest/90 to-transparent backdrop-blur-sm">
+        <a href="index.html" class="text-xl tracking-[0.25em] font-serif text-brand-gold hover:text-white transition duration-300">NISSHOKU</a>
+        <div class="flex gap-6 text-brand-gold">
+            <a href="profile.html" class="hover:text-white transition"><i class="ph-light ph-user text-2xl"></i></a>
+        </div>
+    </nav>
+
+    <main class="min-h-screen pt-32 px-4 md:px-12 lg:px-24 pb-20 max-w-[1400px] mx-auto opacity-0 animate-fade-in-up">
+        
+        <h1 class="font-serif text-3xl md:text-4xl text-brand-gold tracking-widest mb-12 border-b border-brand-purple/30 pb-4">YOUR SANCTUARY</h1>
+
+        <!-- Loading State -->
+        <div id="loading-state" class="text-center py-20">
+            <i class="ph-light ph-spinner-gap text-4xl text-brand-gold animate-spin"></i>
+            <p class="text-xs text-brand-lightPurple tracking-widest mt-4 uppercase">Consulting the stars...</p>
+        </div>
+
+        <!-- Empty Cart State (Hidden by default) -->
+        <div id="empty-state" class="hidden text-center py-20">
+            <i class="ph-light ph-tote text-6xl text-brand-purple mb-4"></i>
+            <p class="text-xs text-gray-400 tracking-widest lowercase mb-8">your cart is as empty as the void.</p>
+            <a href="shop.html" class="inline-block border border-brand-gold text-brand-gold px-8 py-3 text-[10px] tracking-widest uppercase hover:bg-brand-gold hover:text-brand-darkest transition">Return to Shop</a>
+        </div>
+
+        <!-- Cart Layout (Hidden by default) -->
+        <div id="cart-layout" class="hidden flex-col lg:flex-row gap-12">
+            
+            <!-- LEFT: Item List -->
+            <div class="w-full lg:w-2/3 space-y-6" id="cart-items-container">
+                <!-- Items will be injected here by Javascript -->
+            </div>
+
+            <!-- RIGHT: Order Summary -->
+            <div class="w-full lg:w-1/3">
+                <div class="bg-brand-darkest/40 backdrop-blur-md border border-brand-purple/30 p-8 sticky top-32">
+                    <h2 class="font-serif text-xl text-brand-gold tracking-widest mb-6 border-b border-brand-purple/30 pb-4">ORDER SUMMARY</h2>
+                    
+                    <div class="space-y-4 text-xs tracking-widest text-gray-300">
+                        <div class="flex justify-between">
+                            <span>SUBTOTAL</span>
+                            <span id="subtotal-display">₹ 0</span>
+                        </div>
+                        <div class="flex justify-between">
+                            <span>SHIPPING</span>
+                            <span class="text-brand-gold">FREE</span>
+                        </div>
+                    </div>
+
+                    <div class="flex justify-between mt-6 pt-6 border-t border-brand-purple/30 text-lg text-brand-gold">
+                        <span class="font-serif tracking-widest">TOTAL</span>
+                        <span id="total-display">₹ 0</span>
+                    </div>
+
+                    <button class="premium-btn w-full mt-8 border border-brand-gold text-brand-darkest bg-brand-gold py-4 text-xs tracking-[0.2em] uppercase flex justify-center items-center gap-2 group hover:bg-brand-lightGold transition duration-300">
+                        Checkout <i class="ph-bold ph-arrow-right transition-transform duration-300 group-hover:translate-x-2"></i>
+                    </button>
+                </div>
+            </div>
+
+        </div>
+    </main>
+
+    <!-- Magic Scripts -->
+    <script type="module">
+        import { initializeApp } from "https://www.gstatic.com/firebasejs/12.13.0/firebase-app.js";
+        import { getAuth, onAuthStateChanged } from "https://www.gstatic.com/firebasejs/12.13.0/firebase-auth.js";
+        import { createClient } from "https://cdn.jsdelivr.net/npm/@supabase/supabase-js/+esm";
+
+        // FIREBASE & SUPABASE CONFIGS
+        const firebaseConfig = { apiKey: "AIzaSyDyqce5AYhnsIc8qggFcQaq2aztr0SczAM", authDomain: "nisshoku-store.firebaseapp.com", projectId: "nisshoku-store", storageBucket: "nisshoku-store.firebasestorage.app", messagingSenderId: "743371637179", appId: "1:743371637179:web:56f2e2e77f94bf52d5849e", measurementId: "G-R9813FH0LF" };
+        const app = initializeApp(firebaseConfig);
+        const auth = getAuth(app);
+
+        const supabaseUrl = 'https://eqgpmrdzzxisoqmrjldd.supabase.co';
+        const supabaseKey = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6ImVxZ3BtcmR6enhpc29xbXJqbGRkIiwicm9sZSI6ImFub24iLCJpYXQiOjE3Nzk1MzMwMjcsImV4cCI6MjA5NTEwOTAyN30.MDA_HKm-1Xm0PP73agQtUJTx-SijYhynAdaWrKdcoZM';
+        const supabase = createClient(supabaseUrl, supabaseKey);
+
+        // GLOBAL VARIABLES
+        let currentUserId = null;
+        const loadingState = document.getElementById('loading-state');
+        const emptyState = document.getElementById('empty-state');
+        const cartLayout = document.getElementById('cart-layout');
+        const itemsContainer = document.getElementById('cart-items-container');
+
+        // 1. CHECK WHO IS LOGGED IN
+        onAuthStateChanged(auth, (user) => {
+            if (user) {
+                currentUserId = user.uid;
+                fetchCartItems();
+            } else {
+                // Not logged in! Send them to login page
+                window.location.href = "login.html"; 
+            }
+        });
+
+        // 2. FETCH CART FROM SUPABASE
+        async function fetchCartItems() {
+            try {
+                const { data, error } = await supabase
+                    .from('cart')
+                    .select('*')
+                    .eq('user_id', currentUserId);
+
+                if (error) throw error;
+                
+                loadingState.classList.add('hidden');
+
+                if (data.length === 0) {
+                    emptyState.classList.remove('hidden');
+                } else {
+                    renderCartItems(data);
+                    cartLayout.classList.remove('hidden');
+                    cartLayout.classList.add('flex');
+                }
+            } catch (err) {
+                console.error("Error fetching cart:", err);
+                alert("Failed to load cart. The stars are misaligned.");
+            }
+        }
+
+        // 3. RENDER ITEMS & CALCULATE TOTAL
+        function renderCartItems(items) {
+            itemsContainer.innerHTML = ''; // Clear container
+            let subtotal = 0;
+
+            items.forEach(item => {
+                subtotal += Number(item.price);
+
+                const itemHTML = `
+                    <div class="flex gap-6 bg-brand-darkest/40 border border-brand-purple/30 p-4 relative group">
+                        <!-- Delete Button -->
+                        <button onclick="window.removeItem('${item.id}')" class="absolute top-4 right-4 text-brand-purple hover:text-red-400 transition cursor-none">
+                            <i class="ph-light ph-trash text-xl"></i>
+                        </button>
+                        
+                        <!-- Image -->
+                        <div class="w-24 h-24 bg-brand-dark overflow-hidden shrink-0">
+                            <img src="${item.image_url}" class="w-full h-full object-cover">
+                        </div>
+                        
+                        <!-- Details -->
+                        <div class="flex flex-col justify-center">
+                            <h3 class="font-serif text-brand-gold tracking-widest text-sm md:text-base">${item.product_name}</h3>
+                            <p class="text-[10px] text-brand-lightPurple tracking-widest uppercase mt-1">Size: ${item.size || 'OS'}</p>
+                            <p class="text-white tracking-widest mt-2">₹ ${item.price.toLocaleString()}</p>
+                        </div>
+                    </div>
+                `;
+                itemsContainer.insertAdjacentHTML('beforeend', itemHTML);
+            });
+
+            // Update Math
+            document.getElementById('subtotal-display').innerText = `₹ ${subtotal.toLocaleString()}`;
+            document.getElementById('total-display').innerText = `₹ ${subtotal.toLocaleString()}`;
+        }
+
+        // 4. REMOVE ITEM FROM CART
+        window.removeItem = async (cartItemId) => {
+            const btn = event.currentTarget;
+            btn.innerHTML = `<i class="ph-light ph-spinner-gap animate-spin"></i>`; // Show loading on button
+
+            try {
+                const { error } = await supabase
+                    .from('cart')
+                    .delete()
+                    .eq('id', cartItemId);
+
+                if (error) throw error;
+                
+                // Refresh cart quietly
+                fetchCartItems(); 
+
+            } catch (err) {
+                console.error("Error deleting:", err);
+                alert("Could not remove item.");
+                btn.innerHTML = `<i class="ph-light ph-trash text-xl"></i>`;
+            }
+        };
+
+        // --- GLITTER FX ---
+        document.addEventListener('mousemove', function(e) {
+            const sparkle = document.createElement('div');
+            sparkle.className = 'sparkle-trail'; sparkle.style.left = (e.clientX - 3) + 'px'; sparkle.style.top = (e.clientY - 3) + 'px';
+            document.body.appendChild(sparkle); setTimeout(() => sparkle.remove(), 600);
+        });
+        document.body.addEventListener('click', function(e) {
+            if(e.target.closest('button') || e.target.closest('a')) {
+                for (let i = 0; i < 15; i++) {
+                    const glitter = document.createElement('div'); glitter.className = 'glitter-particle';
+                    document.body.appendChild(glitter); glitter.style.left = e.clientX + 'px'; glitter.style.top = e.clientY + 'px';
+                    const angle = Math.random() * Math.PI * 2; const velocity = 30 + Math.random() * 50; 
+                    const tx = Math.cos(angle) * velocity; const ty = Math.sin(angle) * velocity;
+                    const animation = glitter.animate([{ transform: 'translate(0, 0) scale(1)', opacity: 1 }, { transform: `translate(${tx}px, ${ty}px) scale(0)`, opacity: 0 }], { duration: 400 + Math.random() * 400, easing: 'cubic-bezier(0, .9, .57, 1)' });
+                    animation.onfinish = () => glitter.remove();
+                }
+            }
+        });
+    </script>
+</body>
+</html>
